@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Accredited investor guide: who qualifies, what it unlocks - Luminaz{% endblock %}{% block description %}Plain-English answers on accredited investor status: the income and net worth tests, what private funds are, how verification works, and the questions to ask a fund manager.{% endblock %}{% block content %}
+<h1>The accredited investor guide</h1>
+<p class="sub">About one in five US households qualifies as an accredited investor and most don't know it. These short reads explain the tests, what the status unlocks, and how to look at a private fund without being sold one. Luminaz describes funds and never recommends them.</p>
+<p><a class="btn" href="{{ url_for('investor.calculator') }}">Find out if you're accredited</a></p>
+<div class="grid"><a class="card" href="{{ url_for('investor.article', slug=featured.slug) }}" style="text-decoration:none;color:inherit"><h3>{{ featured.title }}</h3><p class="small muted">{{ featured.summary[:155] }}…</p></a>{% for a in articles %}<a class="card" href="{{ url_for('investor.article', slug=a.slug) }}" style="text-decoration:none;color:inherit"><h3>{{ a.title }}</h3><p class="small muted">{{ a.summary }}{% if a.summary|length >= 155 %}…{% endif %}</p></a>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Webinars - Luminaz{% endblock %}{% block content %}
+<h1>Webinars</h1><p class="sub">Short, free sessions on how private funds work and what accredited status lets you do. No specific funds, no returns, no selling.</p>
+{% if preview %}<div class="flash error">Preview: the attorney has not approved the terms yet, so sign-ups are locked and only admins can see this page.</div>{% endif %}
+{% for w in webinars %}<div class="card"><h3>{{ w.title }}</h3><p class="small muted">{{ w.starts_at|replace('T', ' at ') }} · {{ 'For accredited investors' if w.audience == 'investors' else 'For fund managers' }}</p>{% if w.description %}<p class="small">{{ w.description }}</p>{% endif %}<p><a class="btn" href="{{ url_for('webinars.signup', webinar_id=w.id) }}">Save my seat</a></p></div>
+{% else %}<div class="card muted">Nothing scheduled right now. Check back here; the next one will be listed on this page.</div>{% endfor %}{% endblock %}

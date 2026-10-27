@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block title %}Marketing posts{% endblock %}{% block content %}<h1>Marketing posts</h1>
+<p class="sub">Posts by purpose. The agent drafts this week and next; you read, edit the hook or the text if you like, and click <b>Approve</b>. On the day, the app sends every approved post, one version per platform with its own tagged link, {% if webhook %}to your posting webhook{% else %}to your email, ready to paste (set a webhook in Settings and it posts for you){% endif %}. Nothing goes out without your approval.</p>
+<div class="grid">{% for purpose, label, days, platforms in schedule %}<div class="stat"><b>{{ days }}</b><span>{{ label }} · {{ platforms }}</span></div>{% endfor %}</div>
+<div class="grid"><div class="stat"><b>{{ counts.get('draft', 0) }}</b><span>waiting for approval</span></div><div class="stat"><b>{{ counts.get('approved', 0) }}</b><span>approved, scheduled</span></div><div class="stat"><b>{{ counts.get('published', 0) }}</b><span>sent</span></div></div>
+{% if not attorney %}<div class="card muted small">Webinar posts are drafted only once "Attorney has approved" is 1 in Settings, because the sign-up page they link to is locked until then. Investor and manager posts link to public pages and are drafted now.</div>{% endif %}
+<form method="post" class="card"><button class="btn sm" name="action" value="plan">Draft this week and next</button> <span class="small muted">The daily job does this on its own; the button is for right now. Days and platforms per purpose are on Settings.</span></form>
+{% for p in rows %}{% set r = rendered[p.id] %}
+<form method="post" class="card stack" {% if p.status == 'skipped' %}style="opacity:.55"{% endif %}><input type="hidden" name="post_id" value="{{ p.id }}">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="margin:0">{{ p.slot }} {{ p.scheduled_for }} <span class="tag">{{ labels.get(p.purpose, p.purpose) }}</span> <span class="tag {{ 'live' if p.status == 'published' else 'founding' if p.status == 'approved' else 'pending' if p.status == 'draft' else '' }}">{{ p.status }}</span>{% if p.scheduled_for < today and p.status == 'draft' %} <span class="tag paused">date passed, never approved</span>{% endif %}</h3>
+{% if p.published_at %}<span class="small muted">sent {{ p.published_at|date }} via {{ p.published_via }}</span>{% endif %}</div>
+{% if p.status in ('draft', 'approved') %}
+{% if flags[p.id] %}<div class="small">{% for label, snippet in flags[p.id] %}<div><span class="tag rejected">{{ label }}</span> …{{ snippet }}…</div>{% endfor %}<span class="muted">The marketing-language screen flagged these words. Read them before you approve; the screen catches words, not meaning.</span></div>{% endif %}
+<label>Topic</label><input name="topic" value="{{ p.topic }}">
+<label>Hook (the first line people see; the post opens with it)</label><input name="hook" value="{{ p.hook or '' }}">
+<div class="grid2"><div><label>LinkedIn / Facebook / newsletter</label><textarea name="long_body" rows="12">{{ p.long_body }}</textarea></div><div><label>X / Threads (under 280 characters)</label><textarea name="short_body" rows="6">{{ p.short_body }}</textarea><label>Hashtags</label><input name="tags" value="{{ p.tags }}"><p class="small muted">The link placeholder becomes the live page with a ?src= tag per platform ({% for k, v in r.platforms.items() %}{{ v.label }}: {{ v.link }}{% if not loop.last %}; {% endif %}{% endfor %}). Every long post ends with: "{{ r.disclaimer }}"</p></div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+{% if p.status == 'draft' %}<button class="btn" name="action" value="approve">Approve for {{ p.scheduled_for }}</button><button class="btn sm" name="action" value="save">Save edits</button><button class="btn sm" name="action" value="skip">Skip</button>
+{% else %}<button class="btn sm" name="action" value="send_now">Send now</button><button class="btn sm" name="action" value="unapprove">Back to draft</button>{% endif %}</div>
+{% else %}{% for k, v in r.platforms.items() %}<p class="small muted"><b>{{ v.label }}</b></p><p style="white-space:pre-wrap" class="small">{{ v.text }}</p>{% endfor %}{% endif %}
+</form>
+{% else %}<div class="card muted">No posts yet. Click "Draft this week and next."</div>{% endfor %}
+{% endblock %}

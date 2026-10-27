@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}Notifications · Luminaz{% endblock %}{% block content %}
+<div class="card" style="max-width:640px;margin:20px auto"><h1>Email notifications</h1>
+<form method="post" class="stack">
+<label style="font-weight:400"><input type="checkbox" style="width:auto" checked disabled> <b>Account notices</b>: confirmations, password resets, {% if user.role == 'manager' %}investor requests for your funds, listing approvals, invoices{% else %}confirmations of your material requests{% endif %}. These continue for as long as you have an account; close the account to stop them.</label>
+<label style="font-weight:400"><input type="checkbox" name="marketing" style="width:auto" {% if user.marketing_opt_in %}checked{% endif %}> <b>Educational emails and Luminaz updates</b>: {% if user.role == 'manager' %}occasional notes on what's working for other managers, product changes, and reminders you can act on{% else %}one short email a week on accredited investing, and news when the catalog changes{% endif %}. Turn off any time.</label>
+<p><button class="btn">Save</button></p>
+</form>
+{% if user.role == 'investor' %}<form method="post" class="stack" style="margin-top:14px"><h3>Pause my account</h3>
+{% if user.paused_at %}<p class="small">Paused since {{ user.paused_at|date }}: no educational emails, shortlist hidden, account kept.</p><button class="btn" name="action" value="resume">Resume my account</button>
+{% else %}<p class="small">Taking a break? Pausing stops the educational emails and hides your shortlist and requests. Your account and password stay; one click brings everything back.</p><button class="btn quiet" name="action" value="pause">Pause my account</button>{% endif %}</form>{% endif %}
+<p class="small muted">Consent on file: {{ user.consent_text or 'recorded at sign-up' }} ({{ user.consent_at|date or 'date not recorded' }}). To close your account or have your data deleted, write to {{ setting('support_email') }}.</p>
+</div>{% endblock %}

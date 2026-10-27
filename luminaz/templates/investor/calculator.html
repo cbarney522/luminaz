@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block title %}Am I an accredited investor? - Luminaz{% endblock %}{% block description %}Free two-minute accredited investor calculator using the SEC's income test ($200,000 / $300,000 joint), net worth test ($1 million excluding your home), and license test. Nothing you enter is stored.{% endblock %}{% block head %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an accredited investor?","acceptedAnswer":{"@type":"Answer","text":"Under SEC Rule 501, an individual with income over $200,000 in each of the last two years ($300,000 with a spouse), or net worth over $1 million excluding a primary residence, or a Series 7, 65, or 82 license in good standing."}},{"@type":"Question","name":"Does my house count toward the net worth test?","acceptedAnswer":{"@type":"Answer","text":"No. Your primary residence and the mortgage on it (up to the home's value) are both excluded. Retirement accounts count in full."}},{"@type":"Question","name":"Do I need to apply to become accredited?","acceptedAnswer":{"@type":"Answer","text":"No. There is no registry or card. You are accredited whenever you meet the definition, and each fund verifies it when you invest."}}]}</script>{% endblock %}{% block content %}
+<h1>Am I an accredited investor?</h1><p class="sub">The SEC's tests, in two minutes. The figures you enter are used for the result and then discarded; only the result and your email are kept.</p>
+<form class="stack card" method="post">
+<h3>Income test</h3>
+<label>Filing alone or with a spouse or partner?</label><select name="joint"><option value="no">Alone ($200,000 threshold)</option><option value="yes">Jointly ($300,000 threshold)</option></select>
+<div class="row"><div><label>Income last year</label><input name="income_last" inputmode="numeric" placeholder="$"></div><div><label>Income the year before</label><input name="income_prior" inputmode="numeric" placeholder="$"></div></div>
+<label>Do you reasonably expect the same or more this year?</label><select name="income_expect"><option value="yes">Yes</option><option value="no">No</option></select>
+<h3>Net worth test</h3>
+<div class="row"><div><label>Total assets (everything you own, including your home)</label><input name="assets" inputmode="numeric" placeholder="$"></div><div><label>Value of your primary home</label><input name="home_value" inputmode="numeric" placeholder="$"></div></div>
+<div class="row"><div><label>Total debts (including the mortgage)</label><input name="liabilities" inputmode="numeric" placeholder="$"></div><div><label>Mortgage balance on your primary home</label><input name="mortgage" inputmode="numeric" placeholder="$"></div></div>
+<div class="hint">Your home and its mortgage are excluded from the test. If the mortgage is bigger than the home is worth, the difference counts against you.</div>
+<h3>License test</h3>
+<label>Do you hold a Series 7, 65, or 82 license in good standing?</label><select name="license"><option value="no">No</option><option value="yes">Yes</option></select>
+<h3>Your result</h3>
+<label>Email to send your result to</label><input name="email" type="email" required>
+<label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive my result and ongoing educational emails about accredited investing from Luminaz (about one a week). I can unsubscribe at any time using the link in every email. <a href="{{ url_for('investor.legal', doc='privacy') }}">Privacy policy</a>.</label>
+<p><button class="btn">Show my result</button></p>
+<p class="small muted">This is an educational tool, not legal, tax, or investment advice. A fund manager will verify your status before any investment.</p>
+</form>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+{% if result == 'accredited' %}
+<div class="hero"><h1>You appear to qualify as an accredited investor.</h1><p>Based on what you entered, you meet the SEC's {{ basis.replace('_',' ') }} test. Most people who qualify have never been told. A fund manager will verify this before any investment.</p>
+{% if open %}<a class="btn" href="{{ url_for('investor.signup') }}">Create your free Luminaz account</a>{% else %}<p><b>The Luminaz catalog opens when enough funds are live and the accredited list is large enough for them.</b> Your result is saved and we'll email you the day it opens.</p>{% endif %}</div>
+<div class="card"><h3>What happens next</h3><p class="small">Being accredited means you can invest in private offerings that aren't sold to the general public. It also means the protections are different: private funds are less regulated, illiquid, and can lose money. Our weekly email walks through what a closed-end fund is, what 506(c) means for you, the four fund types, and the questions to ask before wiring money anywhere.</p></div>
+{% else %}
+<div class="card"><h1>You don't currently appear to meet the tests.</h1><p>The thresholds are $200,000 in income for two years ($300,000 jointly), or $1,000,000 in net worth not counting your home, or a Series 7, 65, or 82 license. The figures you entered were not stored.</p><p class="small muted">The thresholds haven't moved since 1982. If your situation changes, come back.</p></div>
+{% endif %}{% endblock %}

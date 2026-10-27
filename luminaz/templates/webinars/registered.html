@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}You're registered - Luminaz{% endblock %}{% block content %}
+<h1>{% if again %}You're already registered{% else %}You're registered{% endif %}</h1>
+<div class="card"><p><b>{{ w.title }}</b><br>{{ w.starts_at|replace('T', ' at ') }}</p>
+{% if no_link %}<p>The meeting link isn't set yet. It will be in your reminder email the day before.</p>{% else %}<p>Your personal link to join is in the email we just sent to <b>{{ reg.email }}</b>, and a reminder comes the day before. The replay follows afterwards.</p>{% endif %}
+<p class="small muted">Not you, or changed your mind? Use the link at the bottom of any email to stop them.</p></div>
+<p><a class="btn quiet" href="{{ url_for('investor.calculator') }}">Meanwhile, find out if you're accredited</a></p>{% endblock %}

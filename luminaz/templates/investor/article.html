@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}{{ a.title }} - Luminaz{% endblock %}{% block description %}{{ a.summary }}{% endblock %}
+{% block head %}<meta property="og:type" content="article"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":{{ a.title|tojson }},"description":{{ a.summary|tojson }},"author":{"@type":"Organization","name":"Luminaz"},"publisher":{"@type":"Organization","name":{{ company|tojson }}},"mainEntityOfPage":{{ canonical_url|tojson }}}</script>{% endblock %}
+{% block content %}
+<p class="small"><a href="{{ url_for('investor.learn') }}">← Accredited investor guide</a></p>
+<article class="card" style="max-width:760px"><h1>{{ a.title }}</h1>
+{% for para in a.body.split('\n\n') %}{% if para.startswith('- ') %}<ul>{% for li in para.split('\n') %}<li>{{ li[2:] }}</li>{% endfor %}</ul>{% elif para.startswith('1. ') %}<ol>{% for li in para.split('\n') %}<li>{{ li[3:] }}</li>{% endfor %}</ol>{% else %}<p>{{ para|replace('\n', ' ') }}</p>{% endif %}{% endfor %}
+<p><a class="btn" href="{{ url_for('investor.calculator') }}">Find out if you're accredited</a> <span class="small muted">Two minutes; the dollar figures you enter are never stored.</span></p>
+<p class="small muted">Luminaz describes funds and never recommends them. This is education, not investment advice; talk to your own adviser before investing in any private fund.</p></article>
+<h3>Keep reading</h3><div class="grid">{% for r in related %}<a class="card" href="{{ url_for('investor.article', slug=r.slug) }}" style="text-decoration:none;color:inherit"><b>{{ r.title }}</b><p class="small muted">{{ r.summary[:110] }}…</p></a>{% endfor %}</div>
+{% endblock %}

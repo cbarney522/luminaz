@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Luminaz - where accredited investors discover private funds{% endblock %}{% block head %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":{{ company|tojson }},"url":{{ canonical_url|tojson }},"description":"A listing site where accredited investors discover 506(c) private funds, shown in the order they were listed. Not a broker-dealer or investment adviser."}</script>{% endblock %}{% block content %}
+<div class="hero"><h1>Where accredited investors discover private funds.</h1>
+<p>Private funds in real estate, business acquisition, private debt, venture, energy and more, listed by the managers running them and shown in the order they were listed. Free for investors. Always.</p>
+<a class="btn" href="{{ url_for('investor.calculator') }}">Find out if you're accredited</a>
+{% if open %}<a class="btn alt" href="{{ url_for('investor.signup') }}">Create a free account</a>{% else %}<a class="btn alt" href="#how">See how it works</a>{% endif %}</div>
+<div class="grid">
+<div class="card"><h3>Many people who qualify don't know it</h3><p class="small">The SEC's accredited investor thresholds were set in 1982 and have never been adjusted for inflation. Two minutes with the calculator tells you where you stand. We keep your result and your email, never your figures.</p></div>
+<div class="card"><h3>What is checked before a fund is listed</h3><p class="small">A signed listing agreement, a Rule 506(d) bad-actor check with a determination recorded by a person, a review of the listing text, core fund documents on file, and the manager's own publish step. We describe funds; we never recommend them.</p></div>
+<div class="card"><h3>No ranking, no paid placement</h3><p class="small">Funds appear in the order they were listed. Your name reaches a manager only when you ask for their materials. Luminaz does not sell your information.</p></div>
+</div>
+<h2 id="categories">Start with the kind of fund you want</h2>
+<p class="small muted">Pick a category first; every fund in it is shown in listing order.</p>
+<div class="cats">{% for c in categories %}<a class="cat" href="{{ url_for('investor.catalog', category=c) if open else url_for('investor.calculator') }}">{{ c }}<span>{{ category_notes[c] }}</span></a>{% endfor %}</div>
+<h2 id="how">How it works</h2>
+<div class="steps">
+<div class="card"><h3>Check your status</h3><p class="small">Use the calculator. The dollar figures you enter are never stored; only your email (if you give it) and the result.</p></div>
+<div class="card"><h3>Learn, one topic a week</h3><p class="small">Six short emails on how private funds work, what to read before you wire money, and what accredited status lets you do.</p></div>
+<div class="card"><h3>Create a free account</h3><p class="small">Email and password. You attest your own accreditation basis. Pause or leave any time.</p></div>
+<div class="card"><h3>Shortlist and request materials</h3><p class="small">Keep a private shortlist. When you want the documents, one click sends your name and email to that manager and no one else.</p></div>
+<div class="card"><h3>The manager takes it from there</h3><p class="small">The fund manager verifies your accredited status, answers your questions and handles the investment. Luminaz is not part of that step.</p></div>
+</div>
+<p class="small"><a href="{{ url_for('investor.learn') }}">Read the accredited investor guide →</a> · <a href="{{ url_for('investor.about') }}">About Luminaz →</a></p>
+{% if not open %}<div class="card"><b>The catalog opens when {{ ready.live_needed }} funds are live and the accredited list is large enough for them.</b> {{ ready.live }} fund{{ '' if ready.live == 1 else 's' }} live so far. Take the calculator, and if you give your email we'll send one note the day it opens.</div>{% endif %}
+{% endblock %}

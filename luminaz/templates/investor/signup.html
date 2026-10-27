@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Create your Luminaz account{% endblock %}{% block content %}
+<div class="card" style="max-width:640px;margin:20px auto"><h1>Create your free account</h1><p class="sub">Free, always. No subscription, no per-investment fee.</p>
+<form class="stack" method="post"><label>Your name</label><input name="name" required><label>Email</label><input name="email" type="email" required><label>Password (10+ characters)</label><input name="password" type="password" minlength="10" required>
+<h3>How you qualify as an accredited investor</h3>
+{% for key, label in bases %}<label style="font-weight:400"><input type="radio" name="basis" value="{{ key }}" style="width:auto"> {{ label }}</label>{% endfor %}
+<label style="font-weight:400;margin-top:14px"><input type="checkbox" name="attest" style="width:auto"> I confirm the statement I selected is true. I understand that Luminaz does not verify accreditation, that each fund manager will verify my status before accepting any investment, and that Luminaz does not recommend funds or give investment advice.</label>
+<label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive account and service notices by email for as long as I have a Luminaz account, and ongoing educational and platform updates, which I can stop at any time from Notifications or the link in every email.</label>
+<p><button class="btn">Create account</button></p>
+<p class="small muted">By continuing you agree to the <a href="{{ url_for('investor.legal', doc='terms') }}">investor terms</a> and <a href="{{ url_for('investor.legal', doc='privacy') }}">privacy policy</a>. Luminaz never sells information about you.</p></form></div>{% endblock %}

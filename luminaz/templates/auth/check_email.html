@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block content %}<div class="card" style="max-width:520px;margin:30px auto"><h1>Check your email</h1>
+<p>We sent a confirmation link to <b>{{ email }}</b>. Click it to finish setting up your account.</p><p class="small muted">Nothing arrived? Check spam, or write to {{ setting('support_email') }}.</p></div>{% endblock %}

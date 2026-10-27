@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Emails on again · Luminaz{% endblock %}{% block content %}
+<h1>{{ "You're back on the list" if found else "That link isn't valid" }}</h1>
+{% if found %}<p class="sub">Luminaz will email {{ email }} again. Every email has an unsubscribe link, so you can stop them any time.</p>
+{% else %}<p class="sub">The link was already used or is more than {{ days }} days old. Take the <a href="{{ url_for('investor.calculator') }}">calculator</a> again and we'll send a fresh one, or write to <a href="mailto:{{ setting('support_email') }}">{{ setting('support_email') }}</a>.</p>{% endif %}
+{% endblock %}

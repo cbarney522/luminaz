@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}Support · Luminaz{% endblock %}{% block content %}
+<h1>Support</h1>
+<p class="sub">Ask anything about using Luminaz: signing in, listings, invoices, requests, how the calculator works. Answers are instant. Anything the assistant can't answer goes to a person, who replies by email within one business day.</p>
+{% if reply %}<div class="card" style="border-left:4px solid #1f5fa8"><b>{{ 'Passed to a person' if kind == 'escalated' else 'Answer' }}</b><p style="white-space:pre-wrap">{{ reply }}</p></div>{% endif %}
+<form method="post" class="card stack">
+{% if not g.user %}<label>Your email (so a person can reply if needed)</label><input name="email" type="email" required>{% endif %}
+<label>Your question</label><textarea name="question" rows="4" maxlength="1500" required placeholder="e.g. How do I reset my password?  When will my listing go live?  What does the listing fee cover?"></textarea>
+<p><button class="btn">Ask</button></p>
+<p class="small muted">Luminaz doesn't evaluate or recommend funds. Questions about whether a fund is a good investment are for your own financial, legal, or tax adviser; the assistant will say so rather than guess.</p>
+</form>
+<p class="small muted">Prefer email? <a href="mailto:{{ setting('support_email') }}">{{ setting('support_email') }}</a></p>
+{% endblock %}

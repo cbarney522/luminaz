@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% block title %}Metrics{% endblock %}{% block content %}<h1>Metrics</h1>
+<p class="sub">Everything below is computed from what the app records; nothing is typed in. Visitors are counted without cookies (a daily hash that can't be reversed), so there is no consent banner and no third party. A summary of last week is emailed every Monday by the daily job.</p>
+{% macro delta(a, b) %}{% if a > b %}<span style="color:#1d7a46">▲ {{ a - b }}</span>{% elif a < b %}<span style="color:#b3261e">▼ {{ b - a }}</span>{% else %}<span class="muted">–</span>{% endif %}{% endmacro %}
+<h3>Day by day, last 14 days</h3>
+<div class="card" style="overflow-x:auto"><table class="small"><tr><th>Day</th><th>Visitors</th><th>Email sign-ups</th><th>Appear accredited</th><th>Investor accounts</th><th>Fund managers</th><th>Funds published</th><th>Requests</th><th>Added to home screen</th><th>Opened from home screen</th></tr>
+{% for d in days %}<tr{% if loop.first %} style="font-weight:600"{% endif %}><td class="mono">{{ d.weekday }} {{ d.day }}{% if loop.first %} (today so far){% endif %}</td><td>{{ d.visitors }}</td><td>{{ d.leads }}</td><td>{{ d.accredited_leads }}</td><td>{{ d.investor_signups }}</td><td>{{ d.manager_signups }}</td><td>{{ d.funds_published }}</td><td>{{ d.requests }}</td><td>{{ d.app_installs }}</td><td>{{ d.app_opens }}</td></tr>{% endfor %}</table>
+<p class="small muted">Today's row, with yesterday's beside it and a list of what is waiting on you, is emailed to you each evening at the hour set in Settings (7 pm unless you change it); switch it off there. Luminaz is a website, so "added to home screen" is the closest thing it has to a download. Android phones and desktop browsers report it. An iPhone shows up only when the person opens Luminaz from the home screen.</p></div>
+<h3>This week so far vs last week</h3>
+<div class="grid">
+<div class="stat"><b>{{ last.visitors }}</b><span>visitors {{ delta(last.visitors, prev.visitors) }}</span></div>
+<div class="stat"><b>{{ last.accredited_leads }}</b><span>accredited leads {{ delta(last.accredited_leads, prev.accredited_leads) }}</span></div>
+<div class="stat"><b>{{ last.investor_signups }}</b><span>investor sign-ups {{ delta(last.investor_signups, prev.investor_signups) }}</span></div>
+<div class="stat"><b>{{ last.requests }}</b><span>material requests {{ delta(last.requests, prev.requests) }}</span></div>
+<div class="stat"><b>{{ last.outreach_yes }}</b><span>managers said yes {{ delta(last.outreach_yes, prev.outreach_yes) }}</span></div>
+<div class="stat"><b>{{ last.funds_published }}</b><span>funds published {{ delta(last.funds_published, prev.funds_published) }}</span></div>
+<div class="stat"><b>{{ last.live_funds }}</b><span>live funds now</span></div>
+<div class="stat"><b>{{ last.mrr|money }}</b><span>monthly recurring now</span></div>
+</div>
+<h3>The funnel, all time</h3>
+<div class="card"><table><tr><th>Stage</th><th>Count</th><th>Conversion</th></tr>
+<tr><td>Calculator leads</td><td>{{ totals.leads }}</td><td class="muted">{{ totals.unsubscribed }} unsubscribed</td></tr>
+<tr><td>… accredited</td><td>{{ totals.accredited_leads }}</td><td>{{ '%.0f' % (100 * totals.accredited_leads / totals.leads) if totals.leads else '–' }}% of leads</td></tr>
+<tr><td>Investor accounts</td><td>{{ totals.investors }}</td><td>{{ '%.0f' % (100 * totals.investors / totals.accredited_leads) if totals.accredited_leads else '–' }}% of accredited leads</td></tr>
+<tr><td>Material requests</td><td>{{ totals.requests }}</td><td>{{ '%.1f' % (totals.requests / totals.investors) if totals.investors else '–' }} per investor</td></tr>
+<tr><td>Reported invested</td><td>{{ totals.requests_invested }}</td><td>{{ '%.0f' % (100 * totals.requests_invested / totals.requests) if totals.requests else '–' }}% of requests</td></tr>
+<tr><td colspan="3" style="background:#f4f6f9"><b>Manager side</b></td></tr>
+<tr><td>Outreach leads</td><td>{{ totals.outreach_total }}</td><td class="muted">{{ totals.outreach_sent }} contacted</td></tr>
+<tr><td>… said yes</td><td>{{ totals.outreach_yes }}</td><td>{{ '%.0f' % (100 * totals.outreach_yes / totals.outreach_sent) if totals.outreach_sent else '–' }}% of contacted</td></tr>
+<tr><td>… listed</td><td>{{ totals.outreach_listed }}</td><td></td></tr>
+<tr><td>Approved firms</td><td>{{ totals.firms_approved }}</td><td class="muted">{{ totals.founding_firms }} Founding Managers</td></tr>
+<tr><td>Live / closed funds</td><td>{{ totals.funds_live }} / {{ totals.funds_closed }}</td><td></td></tr>
+<tr><td>Paid to date / open</td><td>{{ totals.paid_total|money }} / {{ totals.open_invoices|money }}</td><td></td></tr>
+</table></div>
+<h3>Twelve weeks</h3>
+<div class="card" style="overflow-x:auto"><table class="small"><tr><th>Week of</th><th>Visitors</th><th>Views</th><th>Calc views</th><th>Leads</th><th>Accred.</th><th>Inv. sign-ups</th><th>Fund views</th><th>Requests</th><th>Outreach sent</th><th>Yes</th><th>Mgr sign-ups</th><th>Submitted</th><th>Published</th><th>Live</th><th>Posts</th><th>Support</th><th>Invoiced</th><th>Paid</th><th>MRR</th></tr>
+{% for w in weeks %}<tr><td class="mono">{{ w.week }}</td><td>{{ w.visitors }}</td><td>{{ w.page_views }}</td><td>{{ w.calculator_views }}</td><td>{{ w.leads }}</td><td>{{ w.accredited_leads }}</td><td>{{ w.investor_signups }}</td><td>{{ w.fund_views }}</td><td>{{ w.requests }}</td><td>{{ w.outreach_sent }}</td><td>{{ w.outreach_yes }}</td><td>{{ w.manager_signups }}</td><td>{{ w.funds_submitted }}</td><td>{{ w.funds_published }}</td><td>{{ w.live_funds }}</td><td>{{ w.posts_sent }}</td><td>{{ w.support_questions }}</td><td>{{ w.invoiced|money }}</td><td>{{ w.paid|money }}</td><td>{{ w.mrr|money }}</td></tr>{% endfor %}</table></div>
+<div class="grid2">
+<div class="card"><h3>Where visitors came from (28 days)</h3><table><tr><th>Source</th><th>Visitors</th></tr>{% for r in sources.visits %}<tr><td>{{ r.source }}</td><td>{{ r.visitors }}</td></tr>{% else %}<tr><td colspan="2" class="muted">No traffic recorded yet.</td></tr>{% endfor %}</table><p class="small muted">Add <code>?src=linkedin</code> (or facebook, newsletter, podcast) to any link you share and it shows up here and on each lead.</p></div>
+<div class="card"><h3>Marketing spend and cost per accredited lead</h3><p class="small muted">Type in what you spent, by month and by the same source word you put on the links. Leads and webinar sign-ups with that tag are counted against it.</p>
+<form method="post" class="stack"><div class="row"><div><label>Month</label><input name="month" value="{{ this_month }}" placeholder="YYYY-MM"></div><div><label>Source word</label><input name="source" placeholder="linkedin, facebook, newsletter, postcard"></div></div><div class="row"><div><label>Amount ($)</label><input name="amount" inputmode="decimal"></div><div><label>Note</label><input name="note" placeholder="one newsletter ad, 5,000 postcards..."></div></div><p><button class="btn quiet sm">Record spend</button></p></form>
+<table class="small"><tr><th>Month</th><th>Source</th><th>Spend</th><th>Leads</th><th>Accredited</th><th>Webinar sign-ups</th><th>Cost per accredited lead</th></tr>
+{% for r in roi %}<tr><td class="mono">{{ r.month }}</td><td>{{ r.source }}</td><td>{{ r.spend|money if r.spend else '—' }}</td><td>{{ r.leads }}</td><td>{{ r.accredited }}</td><td>{{ r.webinar }}</td><td>{% if r.cost_per_accredited is not none %}{{ r.cost_per_accredited|money }}{% elif r.spend %}no accredited leads yet{% else %}free{% endif %}</td></tr>
+{% else %}<tr><td colspan="7" class="muted">Nothing yet. Tag your links and record what you spend.</td></tr>{% endfor %}</table>
+{% if spend_rows %}<details><summary class="small">Spend entries ({{ spend_rows|length }})</summary><table class="small">{% for sp in spend_rows %}<tr><td class="mono">{{ sp.month }}</td><td>{{ sp.source }}</td><td>{{ sp.amount|money }}</td><td class="muted">{{ sp.note }}</td><td><form method="post" class="inline"><input type="hidden" name="action" value="delete_spend"><input type="hidden" name="id" value="{{ sp.id }}"><button class="btn sm quiet">Delete</button></form></td></tr>{% endfor %}</table></details>{% endif %}</div>
+<div class="card"><h3>Where leads came from (28 days)</h3><table><tr><th>Source</th><th>Leads</th></tr>{% for r in sources.leads %}<tr><td>{{ r.source }}</td><td>{{ r.leads }}</td></tr>{% else %}<tr><td colspan="2" class="muted">No leads yet.</td></tr>{% endfor %}</table></div>
+<div class="card"><h3>Most viewed pages (28 days)</h3><table><tr><th>Page</th><th>Views</th></tr>{% for r in sources.pages %}<tr><td class="mono small">{{ r.path }}</td><td>{{ r.views }}</td></tr>{% endfor %}</table></div>
+<div class="card"><h3>Funds by investor interest (28 days)</h3><table><tr><th>Fund</th><th>Views</th><th>Marks</th><th>Requests</th></tr>{% for f in top %}<tr><td><a href="{{ url_for('admin.fund', fund_id=f.id) }}">{{ f.name }}</a> <span class="tag {{ f.status }}">{{ f.status }}</span></td><td>{{ f.views }}</td><td>{{ f.marks }}</td><td>{{ f.requests }}</td></tr>{% else %}<tr><td colspan="4" class="muted">No funds yet.</td></tr>{% endfor %}</table><p class="small muted">For your eyes only. Investors never see rankings; managers see only their own counts.</p></div>
+</div>
+{% endblock %}

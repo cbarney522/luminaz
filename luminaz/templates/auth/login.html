@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Sign in - Luminaz{% endblock %}{% block content %}
+<div class="card" style="max-width:440px;margin:30px auto"><h1>Sign in</h1>
+<form class="stack" method="post"><label>Email</label><input name="email" type="email" required autofocus>
+<label>Password</label><input name="password" type="password" required>
+<p><button class="btn">Sign in</button> &nbsp; <a href="{{ url_for('auth.forgot') }}" class="small">Forgot password?</a></p></form>
+<p class="small muted">Investor? <a href="{{ url_for('investor.signup') }}">Create a free account</a>. Fund manager? <a href="{{ url_for('manager.signup') }}">Start here</a>.</p></div>{% endblock %}

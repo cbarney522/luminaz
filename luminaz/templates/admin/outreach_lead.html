@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}{{ o.fund_name }} · Outreach{% endblock %}{% block content %}
+<p class="small"><a href="{{ url_for('admin.outreach') }}">← All leads</a></p>
+<h1>{{ o.fund_name }}</h1>
+<p class="sub"><span class="tag {{ 'live' if o.status in ('yes','listed') else 'pending' if o.status in ('drafted','new','followup_drafted') else '' }}">{{ o.status|replace('_',' ') }}</span>
+{% if o.sent_at %} · sent {{ o.sent_at|date }}{% endif %}{% if o.followup_sent_at %} · follow-up {{ o.followup_sent_at|date }}{% endif %}{% if o.replied_at %} · replied {{ o.replied_at|date }}{% endif %}
+{% if o.filing_url %} · <a href="{{ o.filing_url }}" target="_blank" rel="noopener">Form D on EDGAR</a>{% endif %}</p>
+
+<div class="grid2">
+<form method="post" class="card stack"><h3>Lead</h3>
+<div class="row"><div><label>Contact name</label><input name="contact_name" value="{{ o.contact_name }}"></div><div><label>Email</label><input name="email" type="email" value="{{ o.email }}"></div></div>
+<div class="row"><div><label>Fund name</label><input name="fund_name" value="{{ o.fund_name }}"></div><div><label>Firm</label><input name="firm_name" value="{{ o.firm_name }}"></div></div>
+<div class="row"><div><label>Category</label><select name="category">{% for c in [''] + categories %}<option {% if c == o.category %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div><div><label>Phone</label><input name="phone" value="{{ o.phone }}"></div></div>
+<p class="small muted">Target raise (Form D): {{ o.target_raise or '—' }} · filed {{ o.filed[:10] or '—' }} · source {{ o.source }}</p>
+<label>Notes (calls, what they said)</label><textarea name="notes" rows="4">{{ o.notes }}</textarea>
+<label><input type="checkbox" name="credit_offered" {% if o.credit_offered %}checked{% endif %}> Offer a {{ setting('founding_rate')|money }} win-back credit (someone you've spoken with before who said "later")</label>
+<div><button class="btn sm" name="action" value="save">Save</button> <button class="btn sm" name="action" value="draft">{{ 'Re-draft email' if o.draft_body else 'Draft the email' }}</button></div>
+</form>
+
+<form method="post" class="card stack"><h3>Email</h3>
+{% if o.status == 'new' %}<p class="muted">No draft yet. Click "Draft the email" and the agent will write it from the filing.</p>{% endif %}
+<label>Subject</label><input name="draft_subject" value="{{ o.draft_subject }}">
+<label>Body</label><textarea name="draft_body" rows="18">{{ o.draft_body }}</textarea>
+{% if o.status in ('new', 'drafted') %}<p><button class="btn" name="action" value="send" {% if not o.email %}disabled title="Add an email address first"{% endif %}>Approve and send to {{ o.email or '(no address)' }}</button></p>
+{% else %}<p class="small muted">Already sent. Edit the lead's status below when they reply.</p>{% endif %}
+{% if held %}<p class="small" style="color:#b00">Sending is {{ held }}. Drafts keep.</p>{% endif %}
+</form>
+</div>
+{% if o.status == 'followup_drafted' %}<form method="post" class="card stack"><h3>Follow-up, drafted by the daily job after {{ setting('outreach_followup_days') }} days with no reply</h3>
+<label>Body</label><textarea name="followup_body" rows="8">{{ o.followup_body }}</textarea>
+<p><button class="btn" name="action" value="send_followup">Approve and send the follow-up to {{ o.email }}</button> <span class="small muted">Nothing goes out until you click this (rule 4.7).</span></p></form>{% endif %}
+
+<form method="post" class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Mark the reply:</b>
+{% for s in ['yes','later','no','listed','do_not_contact'] %}<button class="btn sm" name="status" value="{{ s }}">{{ s|replace('_',' ') }}</button>{% endfor %}
+<input type="hidden" name="action" value="status"><span class="small muted">"Yes" means send them the sign-up link on the manager portal. "Later" keeps them for the win-back email when the catalog is live.</span></form>
+{% endblock %}

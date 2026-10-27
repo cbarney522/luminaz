@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Firm profile{% endblock %}{% block content %}
+<h1>Firm profile</h1><p class="sub">Shown to investors on every listing. Changes to an approved profile are reviewed before they appear.</p>
+<form class="stack card" method="post"><label>Firm name</label><input name="name" value="{{ firm.name }}" required>
+<div class="row"><div><label>Website</label><input name="website" value="{{ firm.website }}" placeholder="https://"></div><div><label>Phone</label><input name="phone" value="{{ firm.phone }}"></div></div>
+<div class="row"><div><label>Address</label><input name="address" value="{{ firm.address }}"></div><div><label>State</label><input name="state" value="{{ firm.state }}" maxlength="2"></div></div>
+<label>About the firm</label><textarea name="description">{{ firm.description }}</textarea><div class="hint">Track record, team, focus. Investors read this. No performance guarantees, no "safe", no projections without the basis.</div>
+<label>Principals</label><textarea name="principals" placeholder="One per line: name, role. E.g. Marcus Reyes, Managing Member of the GP">{{ firm.principals }}</textarea><div class="hint">Everyone who counts as a covered person under Rule 506(d): general partner or managing member, executive officers, directors, 20%+ owners, promoters. Each is checked before your first fund goes live.</div>
+<p><button class="btn">Save</button></p></form>{% endblock %}

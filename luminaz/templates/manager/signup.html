@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Fund manager sign-up - Luminaz{% endblock %}{% block content %}
+<div class="card" style="max-width:640px;margin:20px auto"><h1>Create your manager account</h1>
+<form class="stack" method="post"><div class="row"><div><label>Your name</label><input name="name" required></div><div><label>Firm name</label><input name="firm_name" required></div></div>
+<div class="row"><div><label>Phone</label><input name="phone"></div><div><label>State</label><input name="state" maxlength="2" placeholder="GA"></div></div>
+<label>Email</label><input name="email" type="email" required><label>Password (10+ characters)</label><input name="password" type="password" minlength="10" required>
+<label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive account and service notices by email (investor requests, approvals, invoices) for as long as I have a Luminaz account, and ongoing platform updates, which I can stop at any time from Notifications or the link in every email. I agree to the <a href="{{ url_for('investor.legal', doc='manager-terms') }}">fund manager terms</a> and <a href="{{ url_for('investor.legal', doc='privacy') }}">privacy policy</a>.</label>
+<p><button class="btn">Create account</button></p><p class="small muted">Nothing is charged at sign-up. You'll sign the listing agreement when you submit your first fund.</p></form></div>{% endblock %}

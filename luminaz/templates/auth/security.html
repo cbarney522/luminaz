@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Security{% endblock %}{% block content %}
+<h1>Two-step sign-in</h1><p class="sub">Required for the review desk before launch. Uses any authenticator app (Google Authenticator, Authy, 1Password, Microsoft Authenticator).</p>
+{% if recovery_codes %}<div class="card" style="border-color:var(--warn)"><h3>Two-step sign-in is on. Save these recovery codes now.</h3><p class="small">Each works once if you lose your phone. Print this page and keep it where Cliff can reach it, with the domain and hosting logins. They are not shown again.</p>
+<pre class="mono" style="font-size:16px">{% for c in recovery_codes %}{{ c }}
+{% endfor %}</pre><p><button class="btn quiet" onclick="window.print()">Print</button></p></div>
+{% elif setup_secret %}<div class="card"><h3>Step 1: add Luminaz to your authenticator app</h3><p>Scan this code, or type the key by hand.</p>
+<div id="qr" style="margin:10px 0"></div><p class="mono">{{ setup_secret }}</p>
+<h3>Step 2: enter the code the app shows</h3><form class="stack" method="post"><input type="hidden" name="action" value="confirm"><label>Six-digit code</label><input name="code" inputmode="numeric" required autofocus><p><button class="btn">Turn on two-step sign-in</button></p></form></div>
+<script>
+// Minimal QR: renders the otpauth URI via a tiny QR generator (no external requests).
+(function(){var t=document.getElementById('qr');var u={{ uri|tojson }};
+try{var s=document.createElement('script');s.src="{{ url_for('static', filename='qrcode.min.js') }}";s.onload=function(){new QRCode(t,{text:u,width:180,height:180})};document.body.appendChild(s)}catch(e){t.textContent=u}})();
+</script>
+{% else %}<div class="card">{% if enabled %}<p><span class="tag live">on</span> Two-step sign-in is active for {{ g.user.email }}.</p>
+<form method="post" onsubmit="return confirm('Turn off two-step sign-in?')"><input type="hidden" name="action" value="disable"><button class="btn quiet">Turn off</button></form>
+<form method="post" style="margin-top:8px"><input type="hidden" name="action" value="start"><button class="btn quiet">Set up again on a new phone</button></form>
+{% else %}<p><span class="tag rejected">off</span> Not set up yet.</p><form method="post"><input type="hidden" name="action" value="start"><button class="btn">Set up two-step sign-in</button></form>{% endif %}</div>{% endif %}{% endblock %}

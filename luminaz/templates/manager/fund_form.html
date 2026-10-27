@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}{{ 'List a fund' if is_new else 'Edit listing' }}{% endblock %}{% block content %}
+<h1>{{ 'List a fund' if is_new else 'Edit listing' }}</h1><p class="sub">You write the listing; Luminaz reviews it. {% if not is_new %}On a live listing, changes to minimum investment and target raise apply immediately; anything else is reviewed first and recorded as a numbered modification.{% endif %}</p>
+<form class="stack card" method="post">
+<label>Fund name</label><input name="name" value="{{ fund.name or '' }}" required>
+<label>Category</label><select name="category">{% for c in categories %}<option {% if fund.category == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+<div class="row"><div><label>Target raise ($)</label><input name="target_raise" value="{{ fund.target_raise or '' }}" inputmode="numeric"></div><div><label>Minimum investment ($)</label><input name="min_investment" value="{{ fund.min_investment or '' }}" inputmode="numeric"></div></div>
+<label>Fund term (years)</label><input name="term_years" value="{{ fund.term_years or '' }}" inputmode="decimal" required><div class="hint">Luminaz lists closed-end funds only: a defined term, then wind-down. Evergreen and perpetual vehicles, REITs, and Reg A offerings are not listed.</div>
+<label>Strategy</label><textarea name="strategy" required>{{ fund.strategy or '' }}</textarea><div class="hint">What the fund buys, where, and why now. Plain language. Investors see this first. Do not include projected or expected returns, IRRs, or multiples; Luminaz listings carry no performance projections, and a listing that includes them is sent back. Those belong in your offering documents.</div>
+<label>Key terms</label><textarea name="key_terms" placeholder="Management fee, carried interest, preferred return, distribution schedule, GP commitment, reporting cadence">{{ fund.key_terms or '' }}</textarea>
+<label style="font-weight:400"><input type="checkbox" name="confirm_506c" style="width:auto" required> This offering relies on Rule 506(c) of Regulation D, and every investor will be verified as accredited before investing.</label>
+<label style="font-weight:400"><input type="checkbox" name="confirm_closed_end" style="width:auto" required> This is a closed-end fund with the defined term stated above.</label>
+<p><button class="btn">{{ 'Continue to the listing agreement' if is_new else 'Save changes' }}</button> <a class="btn quiet" href="{{ url_for('manager.dashboard') }}">Cancel</a></p></form>{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Unsubscribed · Luminaz{% endblock %}{% block content %}
+<h1>{{ "You're unsubscribed" if found else "That link isn't valid" }}</h1>
+{% if found %}<p class="sub">No more educational or marketing emails to {{ email }}. If you have a Luminaz account, notices about your account (confirmations, requests, invoices) still arrive; close the account to stop those. Change your mind any time by taking the <a href="{{ url_for('investor.calculator') }}">calculator</a> again.</p>
+{% else %}<p class="sub">The unsubscribe link was already used or has expired. If you're still getting emails, write to <a href="mailto:{{ setting('support_email') }}">{{ setting('support_email') }}</a> and we'll take care of it.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}Promotion kit{% endblock %}{% block content %}
+<h1>Promotion kit: {{ fund.name }}</h1><p class="sub">Send this to your own investor list in your first week live. It's how the first requests arrive. Investors go to your fund's page, never a directory.</p>
+<div class="card"><h3>Your listing link</h3><p class="mono">{{ link }}</p></div>
+<div class="card"><h3>Email to your investor list</h3><pre style="white-space:pre-wrap;font:inherit">Subject: {{ fund.name }} is now listed on Luminaz
+
+Hello,
+
+{{ fund.name }} is now listed on Luminaz, a discovery platform for accredited investors focused on closed-end 506(c) funds.
+
+The listing has the strategy, target raise, minimum investment, and term in one place, and you can request the offering documents from us directly there:
+
+{{ link }}
+
+Luminaz is free for investors. You'll create a short account (a self-attestation of accredited status and a confirmed email) and then you can browse our listing and others.
+
+As always, we'll verify accredited status before any investment, and nothing here is an offer except through the offering documents.
+
+{{ g.user.name }}
+{{ firm.name }}</pre></div>
+<div class="card"><h3>Short post (LinkedIn or email signature)</h3><pre style="white-space:pre-wrap;font:inherit">{{ fund.name }} is now listed on Luminaz, where accredited investors discover closed-end private funds. Details and materials request: {{ link }}</pre></div>
+<div class="card small muted">Keep it factual. Under Rule 506(c) you may advertise, but every claim must be true and not misleading, and every investor must be verified as accredited before investing. Luminaz reviews listing text, not your emails; your compliance counsel should.</div>{% endblock %}

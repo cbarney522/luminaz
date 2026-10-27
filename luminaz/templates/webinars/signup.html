@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}{{ w.title }} - Luminaz webinar{% endblock %}{% block content %}
+<p class="small"><a href="{{ url_for('webinars.index') }}">← Webinars</a></p>
+<h1>{{ w.title }}</h1><p class="sub">{{ w.starts_at|replace('T', ' at ') }} · about 15 minutes · free · online</p>
+{% if preview %}<div class="flash error">Preview: sign-ups are locked until the attorney approves the terms and privacy policy.</div>{% endif %}
+<div class="grid2"><div class="card">{% if w.description %}<p>{{ w.description }}</p>{% endif %}<p class="small muted">Education only: no specific funds, no returns, no selling. Luminaz describes funds and never recommends them.</p></div>
+<form class="stack card" method="post"><label>Your name</label><input name="name" value="{{ name }}" required><label>Email</label><input name="email" type="email" value="{{ email }}" required>
+<label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive the details of this webinar, a reminder, the replay, and ongoing educational emails from Luminaz. I can unsubscribe at any time using the link in every email.</label>
+<p><button class="btn">Save my seat</button></p><p class="small muted">We keep your name, email and the time you agreed. Nothing is sold or shared.</p></form></div>{% endblock %}

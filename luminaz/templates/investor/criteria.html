@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}What you're looking for - Luminaz{% endblock %}{% block content %}
+<a class="small" href="{{ url_for('investor.catalog') }}">← All funds</a>
+<h1>What you're looking for</h1>
+<p class="sub">Three questions. Your answers become your starting filters on the Funds page. Funds are still shown in the order they were listed: Luminaz never ranks funds or tells you which one fits you best. Only you see these answers; fund managers never do.</p>
+<form class="stack card" method="post">
+<h3>1. Kinds of funds</h3><p class="small muted">Tick any you want to see. Leave all unticked to see every kind.</p>
+{% for c in categories %}<label class="small" style="display:block;margin:4px 0"><input type="checkbox" name="categories" value="{{ c }}" {% if c in crit.categories %}checked{% endif %}> <b>{{ c }}</b> <span class="muted">{{ category_notes.get(c, '') }}</span></label>{% endfor %}
+<h3>2. The most you want to put into one fund</h3><p class="small muted">Funds whose minimum investment is higher are left out. Blank = no limit.</p>
+<input name="max_min" inputmode="numeric" placeholder="$ for example 100,000" value="{{ '{:,.0f}'.format(crit.max_min) if crit.max_min else '' }}">
+<h3>3. The longest you can have money tied up</h3><p class="small muted">In years. Private funds usually can't be cashed out early; funds with a longer term are left out. Blank = no limit.</p>
+<input name="max_term" inputmode="decimal" placeholder="Years, for example 7" value="{{ '%g'|format(crit.max_term) if crit.max_term else '' }}">
+<p><button class="btn">Save and show my funds</button></p></form>
+{% if crit.updated_at %}<p class="small muted">Last saved {{ crit.updated_at|date }}.</p>{% endif %}
+{% endblock %}

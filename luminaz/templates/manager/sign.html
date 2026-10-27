@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Listing agreement{% endblock %}{% block content %}
+<h1>Listing agreement</h1><p class="sub">For <b>{{ fund.name }}</b>. {{ version }}.</p>
+<div class="card"><b>Your terms:</b> {{ rate|money }} per month for this fund{% if founding %}, locked as a Founding Manager on every fund you list{% endif %}, billed at the end of each month for the days the listing was live, due in {{ setting('net_days') }} days. {{ billing_status }} {{ founding_free_text() }} {% if free_months %}First {{ free_months }} months free, starting the day the listing goes live.{% endif %} Pause the listing any time (paused days aren't charged) or close it; nothing is charged after the closing day. No success fee, no carry, no percentage of the raise.</div>
+<div class="legal">{{ agreement }}</div>
+<form class="stack card" method="post"><div class="row"><div><label>Your full legal name</label><input name="signer_name" required></div><div><label>Your title</label><input name="signer_title" placeholder="Managing Member of the General Partner" required></div></div>
+<label style="font-weight:400"><input type="checkbox" name="agree" style="width:auto" required> I have authority to bind the firm and the fund, I have read the agreement above, and I agree to it. I understand my typed name, the time, and my IP address are recorded as my signature.</label>
+<p><button class="btn">Sign and submit for review</button></p></form>{% endblock %}
