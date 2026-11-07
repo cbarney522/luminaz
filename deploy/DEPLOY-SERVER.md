@@ -3,6 +3,34 @@
 For Cliff. Written 7 November 2026. **None of this has been run on your server yet.** Do the steps in
 order and tell Claude what you see at each one.
 
+## Where Luminaz lives today (7 November 2026; keep this section current)
+
+- **Temporary home:** NewMoneyStrategy.com, a LiquidWeb Cloud VPS (AlmaLinux 8, InterWorx). It moves
+  to a Luminaz domain once the site works the way Diane and Cliff want.
+- **Three names, one app:** `www.` (investors), `managers.` (fund managers), `admin.` (founders), all
+  under newmoneystrategy.com. They are Settings values (`investor_host`, `manager_host`,
+  `admin_host`), not code.
+- **Private on purpose:** Apache asks for a password before any page (logins `cliff` and `diane`,
+  file `/etc/luminaz/htpasswd`), until Diane and the attorney open the site (AGENTS.md section 5).
+- **On the server:** code in `/opt/luminaz/app`, data in `/opt/luminaz/app/instance` (never
+  deployed over), Python in `/opt/luminaz/venv`, settings and the secret key in
+  `/etc/luminaz/luminaz.env` (root only; a copy is in Cliff's password manager), service `luminaz`,
+  deploy watcher `luminaz-deploy.path`, deploy log `/var/log/luminaz-deploy.log`,
+  Apache file `/home/newmoney/var/newmoneystrategy.com/apache/luminaz.conf`.
+- **How a change goes live:** Claude pushes to `main` on GitHub (`cbarney522/luminaz`), the tests run,
+  and if all pass the code goes to the server over FTPS and installs itself (about two minutes). A
+  failed test means nothing is deployed. A failed health check puts the previous version back.
+- **GitHub secrets used:** `NEWMONEYSTRATEGY_FTP_SERVER`, `NEWMONEYSTRATEGY_FTP_USERNAME`,
+  `NEWMONEYSTRATEGY_FTP_PASSWORD`.
+- **When something looks wrong (as root on the server):**
+  `systemctl status luminaz` and `journalctl -u luminaz -n 50` for the app;
+  `tail -30 /var/log/luminaz-deploy.log` for the last deploy;
+  `systemctl start luminaz-deploy.service` to redeploy what is already uploaded;
+  the GitHub Actions tab shows each run, and "Run workflow" redeploys without a change.
+- **Not done yet:** offsite backups (backups sit on the same server), outgoing email (SMTP lines in
+  `luminaz.env` are still commented out), the real postal address on Settings, and the "remove an
+  admin" page (admins are removed by hand in the database).
+
 ## How it works
 
 1. Diane asks Claude for a change. Claude changes the code, runs the tests, and pushes to GitHub.
