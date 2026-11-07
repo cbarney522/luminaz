@@ -27,6 +27,7 @@ first. Rules are in AGENTS.md.
   `apache-proxy.conf.example`, and `DEPLOY-SERVER.md`, the step-by-step for Cliff.
 - 7 November, before the first server run: `server-setup.sh` installed the packages as root; it now installs them as the `luminaz` user, so the automatic deploy can upgrade them later.
 - 7 November, server step: the Apache proxy file went in through InterWorx's per-domain custom include (tested: `httpd -t` OK, the site answers 401 behind a password, as intended). Cliff set the three host names with `manage.py setting`. `DEPLOY-SERVER.md` step 5 and `apache-proxy.conf.example` now hold the tested version.
+- 7 November, first GitHub run: `test_31` really contacted Backblaze with fake keys; on GitHub's open network that returned an HTTPError instead of the URLError the sandbox produced, so the deploy stopped (as designed). The test now patches the network call, keeps the same assertion, and never leaves the machine.
 - Why a signal file: FTP can only carry files, so the server watches for the last file and does
   the install itself.
 

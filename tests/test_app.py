@@ -1792,8 +1792,11 @@ class ChangesOf22October(Base):
             return FakeResp(200, listing if req.get_method() == "GET" else b"")
         try:
             with self.app.app_context():
-                dest = jobs.backup()
-                self.assertEqual(self.app.config["LAST_OFFSITE"], "failed (URLError)")   # the real network is not reachable from the tests
+                import urllib.error
+                from unittest import mock
+                with mock.patch("urllib.request.urlopen", side_effect=urllib.error.URLError("no network")):   # never touch the real network (GitHub's runners can reach Backblaze and get an HTTPError instead)
+                    dest = jobs.backup()
+                self.assertEqual(self.app.config["LAST_OFFSITE"], "failed (URLError)")   # an unreachable bucket is recorded, not raised
                 # Now through the fake network: upload, list, no deletes at 10 copies; then deletes with keep=5
                 calls.clear()
                 self.assertEqual(offsite.upload_backup([dest, None], keep=30, opener=fake_open), "uploaded 1")
