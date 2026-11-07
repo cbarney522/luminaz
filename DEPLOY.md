@@ -34,7 +34,12 @@ the admin Settings page, fill in **Investor site host** and **Fund manager porta
 then on manager and admin pages redirect to the manager domain and investor pages to the
 investor domain. Sign-in, legal pages, support, and unsubscribe work on both.
 
-Leave both blank while testing on one address.
+A third host, **Admin host**, is optional. When set, the review desk and Security pages answer
+only there (point a third name at the same server). The server can then limit that name to the
+founders' addresses or add a second password, so managers and the public cannot reach the admin
+sign-in page. Blank = admin pages stay on the manager host.
+
+Leave all blank while testing on one address.
 
 ## 4. First run on the server
 

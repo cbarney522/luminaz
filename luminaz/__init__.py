@@ -62,20 +62,37 @@ def create_app(test_config=None):
 
     @app.before_request
     def route_by_host():
-        """Two domains, one app. If both hosts are set, manager and admin paths
-        live on the manager host and investor paths on the investor host."""
+        """Up to three domains, one app. With investor_host and manager_host set, manager paths
+        live on the manager host and investor paths on the investor host. With admin_host set
+        too, /admin and /security live only there (change 35); with it blank, admin pages stay on
+        the manager host as before."""
         inv_host = dbm.setting("investor_host", "") or ""
         mgr_host = dbm.setting("manager_host", "") or ""
-        if not inv_host or not mgr_host:
+        adm_host = (dbm.setting("admin_host", "") or "").lower()
+        if not adm_host and (not inv_host or not mgr_host):
             return None
         host = (request.host or "").split(":")[0].lower()
         path = request.path
-        manager_side = path.startswith("/managers") or path.startswith("/admin") or path.startswith("/security")
+        admin_side = path.startswith("/admin") or path.startswith("/security")
+        manager_side = path.startswith("/managers") or admin_side
         shared = path.startswith("/static") or path.startswith("/login") or path.startswith("/logout") \
             or path.startswith("/confirm") or path.startswith("/reset") or path.startswith("/forgot") \
             or path.startswith("/legal") or path.startswith("/support") or path.startswith("/unsubscribe") or path.startswith("/resubscribe") or path.startswith("/notifications") \
             or path.startswith("/app-event")
         if shared:
+            return None
+        if adm_host:
+            if admin_side:
+                if host != adm_host:
+                    return redirect("https://%s%s" % (adm_host, request.full_path.rstrip("?")), code=302)
+                return None
+            if host == adm_host:
+                # The admin host serves nothing but the admin pages: send everything else to its own domain.
+                target = mgr_host if path.startswith("/managers") else inv_host
+                if path == "/" or not target:
+                    return redirect(url_for("admin.queue"))
+                return redirect("https://%s%s" % (target, request.full_path.rstrip("?")), code=302)
+        if not inv_host or not mgr_host:
             return None
         if manager_side and host == inv_host.lower():
             return redirect("https://%s%s" % (mgr_host, request.full_path.rstrip("?")), code=302)

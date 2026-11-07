@@ -1061,6 +1061,45 @@ class LaunchFeatures(Base):
         self.assertEqual(r.status_code, 302); self.assertIn("/managers/", r.headers["Location"])
         self.assertEqual(self.c.get("/login", headers={"Host": "managers.test"}).status_code, 200)
 
+    def test_35_admin_host_keeps_the_admin_pages_on_their_own_domain(self):
+        with self.app.app_context():
+            set_setting("investor_host", "investors.test"); set_setting("manager_host", "managers.test")
+        # Admin host blank: admin pages stay on the manager host, as before
+        r = self.c.get("/admin/", headers={"Host": "investors.test"})
+        self.assertEqual(r.status_code, 302); self.assertIn("managers.test/admin/", r.headers["Location"])
+        with self.app.app_context():
+            set_setting("admin_host", "admin.test")
+        # Admin and Security pages redirect to the admin host from either other domain
+        for host in ("investors.test", "managers.test"):
+            for path in ("/admin/", "/admin/settings", "/security"):
+                r = self.c.get(path, headers={"Host": host})
+                self.assertEqual(r.status_code, 302, (host, path)); self.assertTrue(r.headers["Location"].startswith("https://admin.test" + path), (host, path))
+        # The admin host sends everything that is not an admin page to its own domain
+        r = self.c.get("/", headers={"Host": "admin.test"})
+        self.assertEqual(r.status_code, 302); self.assertTrue(r.headers["Location"].endswith("/admin/"))
+        r = self.c.get("/funds", headers={"Host": "admin.test"})
+        self.assertEqual(r.status_code, 302); self.assertTrue(r.headers["Location"].startswith("https://investors.test/funds"))
+        r = self.c.get("/managers/", headers={"Host": "admin.test"})
+        self.assertEqual(r.status_code, 302); self.assertTrue(r.headers["Location"].startswith("https://managers.test/managers/"))
+        # Sign-in and the legal pages work on all three
+        for host in ("investors.test", "managers.test", "admin.test"):
+            self.assertEqual(self.c.get("/login", headers={"Host": host}).status_code, 200, host)
+            self.assertEqual(self.c.get("/legal/privacy", headers={"Host": host}).status_code, 200, host)
+        # The other two domains still route to each other
+        r = self.c.get("/funds", headers={"Host": "managers.test"})
+        self.assertEqual(r.status_code, 302); self.assertIn("investors.test/funds", r.headers["Location"])
+        # An admin signed in on the admin host reaches the review desk and Security
+        self.c.post("/login", data={"email": "admin@luminaz.test", "password": demo_data.PW}, headers={"Host": "admin.test"})
+        for path in ("/admin/", "/admin/settings", "/security"):
+            r = self.c.get(path, headers={"Host": "admin.test"})
+            self.assertEqual(r.status_code, 200, path)
+        # The Settings page saves the new host
+        r = self.c.post("/admin/settings", data={"admin_host": "admin2.test"}, headers={"Host": "admin.test"})
+        self.assertEqual(r.status_code, 302)
+        with self.app.app_context():
+            from luminaz.db import setting
+            self.assertEqual(setting("admin_host"), "admin2.test")
+
     def test_new_pages_render(self):
         for path in ("/support",):
             self.assertEqual(self.c.get(path).status_code, 200, path)
@@ -1650,7 +1689,8 @@ class ChangesOf21October(Base):
         from luminaz.content.posts import POSTS, MANAGER_POSTS, WEBINAR_TEMPLATES
         for p in POSTS + MANAGER_POSTS + [t for aud in WEBINAR_TEMPLATES.values() for t in aud.values()]:
             self.assertEqual(screen_text(p.get("hook", "") + " " + p["long"] + " " + p["short"], extra=POST_FLAGS), [], p["topic"])
-        monday = dt.date(2026, 10, 5)
+        # This week's Monday, not a fixed date: the Posts page lists only the last 21 days (admin.py)
+        monday = dt.date.today() - dt.timedelta(days=dt.date.today().weekday())
         with self.app.app_context(), self.app.test_request_context():
             marketing.plan_posts(today=monday)
             pid = get_db().execute("SELECT id FROM posts WHERE purpose = 'managers' ORDER BY scheduled_for").fetchone()["id"]
@@ -1666,7 +1706,7 @@ class ChangesOf21October(Base):
             for row in db.execute("SELECT id FROM posts WHERE purpose IN ('investors', 'managers') ORDER BY scheduled_for LIMIT 2").fetchall():
                 db.execute("UPDATE posts SET status = 'approved', approved_at = ?, approved_by = 1 WHERE id = ?", (now_iso(), row["id"]))
             db.commit()
-            self.assertEqual(marketing.publish_posts(today=dt.date(2026, 10, 6)), 2)
+            self.assertEqual(marketing.publish_posts(today=monday + dt.timedelta(days=1)), 2)
             db.execute("INSERT INTO page_views(day, path, source, visitor, signed_in) VALUES (?, '/calculator', 'linkedin', 'v1', 0)", (dt.date.today().isoformat(),))
             db.commit()
             rows = dict(metrics.social(today=dt.date.today()))

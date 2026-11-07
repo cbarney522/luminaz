@@ -365,6 +365,7 @@ DEFAULT_SETTINGS = {
     "support_email": "support@luminaztechnology.com",
     "investor_host": "",          # e.g. luminaztechnology.com ; blank = single host
     "manager_host": "",           # e.g. luminazforfundmanagers.com
+    "admin_host": "",             # e.g. admin.example.com ; blank = admin pages stay on the manager host
     "request_nudge_days": "3",
     "outreach_followup_days": "5",
     "founder_name": "Diane Barney",

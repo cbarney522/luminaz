@@ -5,6 +5,53 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 7 November 2026 · Claude (builder) · Change 35: a third domain for the admin pages
+
+### What happened
+
+- Cliff (co-founder, hosting) asked for three hostnames on the new server: investors, fund
+  managers, and admin. The code knew two; the admin pages rode on the manager host. Added a third
+  host setting so the review desk and Security pages can live on their own domain, which the
+  server can then restrict (by address or a second password) so fund managers and the public
+  cannot even reach the admin sign-in page.
+- **69 of 69 tests pass** (Python 3.13, Flask 3.1, Linux; 68 before, one new). Backup before the
+  first edit: `../backups/app_2026-11-07_before_change_35.zip`.
+- **Before the change, one old test failed** (68 ran, 1 failed): `test_29_...` used fixed October
+  dates, and the Posts page lists only the last 21 days (`admin.py`), so from 28 October on the
+  page showed no posts and the test failed. Not an app fault. With Cliff's approval the test now
+  uses this week's Monday instead of 5 October; no check was loosened.
+
+### Change 35
+
+- **New setting `admin_host`** (Settings, Domains; blank by default). Blank: nothing changes, admin
+  pages stay on the manager host. Set: `/admin/...` and `/security` redirect to it from every
+  other host, and the admin host sends anything else to the investor host, the manager host
+  (`/managers`), or to the review desk (`/`). Sign-in, legal, support and unsubscribe pages work on
+  all three. Each host keeps its own sign-in (cookies are per host).
+- Works with only the admin host set, or all three. New test
+  `test_35_admin_host_keeps_the_admin_pages_on_their_own_domain`.
+- `DEPLOY.md` section 3 now describes three domains.
+
+### Not done, and why
+
+- Emails to the founders (evening report, approval notices) still link to the investor host. A
+  link to an admin page redirects to the admin host after sign-in, so nothing breaks. Left alone.
+- `AGENTS.md` section 2 still describes the address table without hostnames. Not edited; Diane
+  decides wording in the rulebook.
+- Could not update "Where Luminaz stands" in the Research File (step 7 of the routine): the doc is
+  not reachable from this session.
+- The server itself (Python, gunicorn, Apache proxy, the auto-deploy) is not built yet. It is the
+  next change.
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 50 | Where the live domains go (temporary hosting on newmoneystrategy.com, later a Luminaz domain). | Hosts are Settings values, not code. Moving later is a Settings change, DNS, and a copy of `instance/`. |
+| 51 | Whether the admin host is also locked by address or password at the server. Recommended, until the attorney has approved the legal pages. | Nothing at the server yet. |
+
+---
+
 ## 26 October 2026 · Claude (builder) · Change 34: what the investor is looking for, and Yes / Maybe / No
 
 ### What happened
