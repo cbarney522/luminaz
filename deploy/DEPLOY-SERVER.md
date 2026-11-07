@@ -71,11 +71,32 @@ In the domain's DNS, point these at the server's IP address: `www`, `managers`, 
 (newmoneystrategy.com). In InterWorx, add them to the site (as the main domain and two subdomains or
 aliases) and request one SSL certificate that covers all three (InterWorx offers Let's Encrypt).
 
-## Step 5: Hand the websites to Luminaz
+## Step 5: Hand the websites to Luminaz (tested 7 November 2026 on InterWorx 8, AlmaLinux 8)
 
-Add the proxy settings from `deploy/apache-proxy.conf.example` to each of the three names, in the
-place InterWorx keeps custom settings. **Use the "keep it private" option in that file until Diane
-and the attorney say the site can open** (AGENTS.md section 5).
+InterWorx keeps custom Apache settings in a per-domain folder, switched off until the server admin
+enables it. As root:
+
+```
+/home/interworx/bin/config.pex --set --name "HTTPD_USE_CUSTOM_INCLUDE" --value "1" --domain newmoneystrategy.com
+~iworx/bin/httpd.pex --sync-vhosts --domain newmoneystrategy.com
+```
+
+All of the domain's vhosts (the main name with www, managers, admin) then include
+`/home/newmoney/var/newmoneystrategy.com/apache/*.conf`, so **one** file covers every name. Create
+the private-access logins first (`htpasswd -c /etc/luminaz/htpasswd cliff`, then
+`htpasswd /etc/luminaz/htpasswd diane`; `chgrp apache` and `chmod 640` the file), then create
+`luminaz.conf` in that folder with the contents of `deploy/apache-proxy.conf.example`, then:
+
+```
+httpd -t && systemctl reload httpd
+curl -sI https://admin.newmoneystrategy.com/login | head -3     # expect: HTTP/2 401
+```
+
+The file starts the site **private** (a password in front of everything) until Diane and the
+attorney open it. To open it, delete the `<Location />` block and reload Apache.
+
+Side effect: the main name, `ftp.` and `mail.` also reach Luminaz, because they share the main
+vhost. Nothing in the app depends on them.
 
 ## Step 6: Tell Luminaz its three names
 

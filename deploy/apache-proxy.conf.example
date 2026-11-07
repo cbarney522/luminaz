@@ -1,29 +1,27 @@
 # Apache settings that hand a website's requests to Luminaz (gunicorn on 127.0.0.1:8000).
-#
-# NOT TESTED against your InterWorx version. InterWorx rebuilds Apache's configuration and can
-# erase hand edits, so these lines must go where InterWorx keeps per-site custom settings (its
-# "vhost include" for each domain). Ask Liquid Web support or the InterWorx documentation where
-# that is on your server, then add the same block for each of the three names:
-#   www.newmoneystrategy.com   managers.newmoneystrategy.com   admin.newmoneystrategy.com
-#
-# Needs mod_proxy, mod_proxy_http and mod_headers (usually already loaded).
+# TESTED 7 November 2026 on InterWorx 8 / AlmaLinux 8, as /home/newmoney/var/newmoneystrategy.com/apache/luminaz.conf
+# (see DEPLOY-SERVER.md, step 5). Needs mod_rewrite, mod_proxy, mod_proxy_http and mod_headers.
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 ProxyPreserveHost On
 RequestHeader set X-Forwarded-Proto "https"
-ProxyPass        / http://127.0.0.1:8000/
+ProxyPass /.well-known !
+ProxyPass / http://127.0.0.1:8000/
 ProxyPassReverse / http://127.0.0.1:8000/
 
-# --- Until the attorney has approved the legal pages: keep the whole site private -------------
-# Option A: only your own addresses (replace with Cliff's and Diane's IPs).
-#   <Location />
-#       Require ip 203.0.113.10 203.0.113.11
-#   </Location>
-# Option B: a password in front of the site (create the file with: htpasswd -c /etc/luminaz/htpasswd name)
-#   <Location />
-#       AuthType Basic
-#       AuthName "Luminaz (private)"
-#       AuthUserFile /etc/luminaz/htpasswd
-#       Require valid-user
-#   </Location>
-# Static files, sign-in and every other page are covered by either option. Remove the option when
-# Diane and the attorney decide the site opens to the public.
+# Private until Diane and the attorney open the site: everything asks for a login first.
+# Create the logins with: htpasswd -c /etc/luminaz/htpasswd NAME   (then chgrp apache, chmod 640)
+# TO OPEN THE SITE TO THE PUBLIC: delete this <Location /> block, then: httpd -t && systemctl reload httpd
+<Location />
+    AuthType Basic
+    AuthName "Luminaz (private)"
+    AuthUserFile /etc/luminaz/htpasswd
+    Require valid-user
+</Location>
+<Location /.well-known/>
+    Require all granted
+</Location>
