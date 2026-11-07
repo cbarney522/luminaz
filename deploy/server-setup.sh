@@ -35,7 +35,7 @@ else
   rsync -a --exclude instance --exclude .git --exclude tests --exclude deploy "$SRC"/ /opt/luminaz/app/
 fi
 chown -R luminaz:luminaz /opt/luminaz
-/opt/luminaz/venv/bin/pip install --quiet -r /opt/luminaz/app/requirements.txt
+runuser -u luminaz -- /opt/luminaz/venv/bin/pip install --quiet -r /opt/luminaz/app/requirements.txt
 
 echo "4. Settings files (only created if missing, so a second run never overwrites your values)"
 if [ ! -f /etc/luminaz/luminaz.env ]; then

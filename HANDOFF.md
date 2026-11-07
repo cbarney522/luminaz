@@ -25,6 +25,7 @@ first. Rules are in AGENTS.md.
   watcher), `luminaz-deploy.sh` (copy in, `pip install`, restart, health check, put the previous
   version back on failure; never touches `instance/`), three systemd units,
   `apache-proxy.conf.example`, and `DEPLOY-SERVER.md`, the step-by-step for Cliff.
+- 7 November, before the first server run: `server-setup.sh` installed the packages as root; it now installs them as the `luminaz` user, so the automatic deploy can upgrade them later.
 - Why a signal file: FTP can only carry files, so the server watches for the last file and does
   the install itself.
 
