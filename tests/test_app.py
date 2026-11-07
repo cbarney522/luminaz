@@ -1945,3 +1945,11 @@ class ChangesOf26October(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ChangesOf7November(Base):
+    """One test per change of 7 November 2026 (HANDOFF.md, change 37)."""
+    def test_37_about_page_shows_the_test_panel(self):
+        r = self.c.get("/about")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b'<div class="card"><h3>Test</h3><p>Now is the time for all good men to come to the aid of their country.</p></div>', r.data)

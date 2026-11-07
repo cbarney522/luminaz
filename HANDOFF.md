@@ -5,6 +5,18 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 7 November 2026 · Claude (builder) · Change 37: a "Test" panel on the About page (to prove the automatic deploy)
+
+- Cliff asked for it, with the exact copy, to watch a change travel from GitHub to the live site.
+  New card on `/about`, titled "Test": "Now is the time for all good men to come to the aid of
+  their country." New test `ChangesOf7November.test_37_...`. **70 of 70 tests pass.** Backup before
+  the first edit: `../backups/app_2026-11-07_before_change_37.zip`.
+- **To remove after the test:** delete that one `<div class="card">` from
+  `luminaz/templates/investor/about.html` and the test, and push. The site is still private
+  (password at Apache), so no member of the public sees it meanwhile.
+
+---
+
 ## 7 November 2026 · Claude (builder) · Change 36: automatic deploy to the NewMoneyStrategy.com server
 
 ### What happened
