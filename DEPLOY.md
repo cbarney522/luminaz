@@ -16,6 +16,8 @@ Any of these works; all three take the files as they are.
 The database is a single SQLite file in `instance/`. That is fine well past the first hundred
 funds. Whatever you choose, the `instance` folder must be on a disk that persists.
 
+The NewMoneyStrategy.com server (LiquidWeb VPS) has its own step-by-step: `deploy/DEPLOY-SERVER.md`.
+
 ## 2. Environment variables
 
 | Variable | What it does |

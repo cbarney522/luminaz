@@ -1,0 +1,7 @@
+[Unit]
+Description=Install the newest Luminaz upload
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/luminaz/deploy.env
+ExecStart=/opt/luminaz/luminaz-deploy.sh

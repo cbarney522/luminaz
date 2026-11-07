@@ -5,6 +5,45 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 7 November 2026 · Claude (builder) · Change 36: automatic deploy to the NewMoneyStrategy.com server
+
+### What happened
+
+- Cliff (co-founder, hosting) wants every push to GitHub to publish itself to his LiquidWeb Cloud
+  VPS (AlmaLinux 8, InterWorx), so Diane can change the site through Claude without going through
+  him. He chose FTP and stored the password as the GitHub secret `NEWMONEYSTRATEGY_FTP_PASSWORD`.
+- No app behaviour changed, so no new test; **69 of 69 tests pass**. Backup before the first edit:
+  `../backups/app_2026-11-07_before_change_36.zip`.
+
+### Change 36 (files only; nothing was run on the server)
+
+- `.github/workflows/deploy.yml`: on each push to `main`, run the tests; only if all pass, upload
+  the code over FTPS to `luminaz-incoming/` (never `instance/`, tests, git files or the rulebook
+  files), then upload a signal file to `luminaz-signal/`. Needs two more secrets from Cliff:
+  `NEWMONEYSTRATEGY_FTP_SERVER`, `NEWMONEYSTRATEGY_FTP_USERNAME`.
+- `deploy/`: `server-setup.sh` (one-time: Python 3.12, `luminaz` user, gunicorn service, signal
+  watcher), `luminaz-deploy.sh` (copy in, `pip install`, restart, health check, put the previous
+  version back on failure; never touches `instance/`), three systemd units,
+  `apache-proxy.conf.example`, and `DEPLOY-SERVER.md`, the step-by-step for Cliff.
+- Why a signal file: FTP can only carry files, so the server watches for the last file and does
+  the install itself.
+
+### Checked / not checked
+
+- Checked: shell scripts parse (`bash -n`), the workflow is valid YAML.
+- **Not checked**: any of it on a real server or on GitHub's runners; that `python3.12` is in
+  AlmaLinux 8's repositories; that the FTP account accepts FTPS; the InterWorx location for the
+  Apache settings; SELinux. The first run will show.
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 52 | The site must stay private (address list or password at Apache) until the attorney approves the legal pages. | The Apache example file carries both options, commented out. Nothing enforces it in code. |
+| 53 | The app takes the first value of `X-Forwarded-For` as the visitor's address (auth.py, manager.py, visitors.py). Behind Apache a visitor can send a false first value, which weakens sign-in throttling. | Unchanged. Should read the last value once the proxy is in place. |
+
+---
+
 ## 7 November 2026 · Claude (builder) · Change 35: a third domain for the admin pages
 
 ### What happened

@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch for a new Luminaz upload
+
+[Path]
+# server-setup.sh replaces __SIGNAL_FILE__ with the real path of the file GitHub uploads last.
+PathChanged=__SIGNAL_FILE__
+Unit=luminaz-deploy.service
+
+[Install]
+WantedBy=multi-user.target

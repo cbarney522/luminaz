@@ -1,0 +1,15 @@
+[Unit]
+Description=Luminaz (gunicorn)
+After=network.target
+
+[Service]
+User=luminaz
+Group=luminaz
+WorkingDirectory=/opt/luminaz/app
+EnvironmentFile=/etc/luminaz/luminaz.env
+ExecStart=/opt/luminaz/venv/bin/gunicorn "luminaz:create_app()" --bind 127.0.0.1:8000 --workers 2 --timeout 60
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

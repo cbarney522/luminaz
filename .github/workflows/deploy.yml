@@ -1,0 +1,76 @@
+name: Test and deploy
+
+# Every push to main: run the tests; if every one passes, send the code to the server.
+# The server picks it up by itself (see deploy/DEPLOY-SERVER.md). Nothing is deployed when a test fails.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # the "Run workflow" button on the Actions tab, to redeploy without a change
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false  # never stop an upload half way
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover tests
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. The code. FTPS (encrypted FTP). The instance folder, tests and git files never go up.
+      - name: Upload the code
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.NEWMONEYSTRATEGY_FTP_SERVER }}
+          username: ${{ secrets.NEWMONEYSTRATEGY_FTP_USERNAME }}
+          password: ${{ secrets.NEWMONEYSTRATEGY_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./
+          server-dir: luminaz-incoming/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            instance/**
+            tests/**
+            tools/**
+            **/__pycache__/**
+            *.pyc
+            AGENTS.md
+            CLAUDE.md
+            GEMINI.md
+            REVIEWER.md
+            HANDOFF.md
+            DEPLOY.md
+            README.txt
+            run.bat
+            deploy/**
+
+      # 2. The signal. A one-line file uploaded last; the server watches it and starts the install.
+      - name: Write the signal file
+        run: |
+          mkdir -p signal
+          echo "${{ github.sha }} ${{ github.run_id }}" > signal/deploy-trigger.txt
+
+      - name: Upload the signal
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.NEWMONEYSTRATEGY_FTP_SERVER }}
+          username: ${{ secrets.NEWMONEYSTRATEGY_FTP_USERNAME }}
+          password: ${{ secrets.NEWMONEYSTRATEGY_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./signal/
+          server-dir: luminaz-signal/
+          state-name: .ftp-deploy-sync-state-signal.json
