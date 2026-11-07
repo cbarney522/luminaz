@@ -64,7 +64,26 @@ jobs:
           mkdir -p signal
           echo "${{ github.sha }} ${{ github.run_id }}" > signal/deploy-trigger.txt
 
+      # A second FTP login straight after the first was dropped by the server once (ECONNRESET), so wait,
+      # and try a second time if the first try fails.
+      - name: Wait before the second FTP login
+        run: sleep 30
+
       - name: Upload the signal
+        id: signal1
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.NEWMONEYSTRATEGY_FTP_SERVER }}
+          username: ${{ secrets.NEWMONEYSTRATEGY_FTP_USERNAME }}
+          password: ${{ secrets.NEWMONEYSTRATEGY_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./signal/
+          server-dir: luminaz-signal/
+          state-name: .ftp-deploy-sync-state-signal.json
+
+      - name: Upload the signal (second try)
+        if: steps.signal1.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.NEWMONEYSTRATEGY_FTP_SERVER }}
