@@ -5,6 +5,31 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 12 November 2026 · Claude (builder) · Change 39: no marketing email unless the person's yes is on record
+
+### What happened
+
+- Diane said (12 November): nothing goes out unless she gets a yes. I checked the code. There is no text-message (SMS) sending anywhere, only email. The calculator form already requires the consent box and stores the time and the wording (rule 4.8), but the two marketing senders (the weekly education series and the one catalog-open note) never checked at send time that a yes was on record. They checked only "accredited", "not unsubscribed", and "not suppressed".
+- **73 of 73 tests pass** (72 before, one new). The new test fails on the old code (it sent to a lead whose consent was blanked). Backup for the session: `../backups/app_2026-11-12_before_change_38.zip`; the commit before this change is `e315bde`.
+
+### Change 39
+
+- `luminaz/jobs.py`: both queries now add `consent_at IS NOT NULL`. A lead with no recorded yes gets no marketing email, even if something else put it in the table. Nothing new is sent, and every lock in section 5 stays in place.
+- Tests: `test_39_no_marketing_email_goes_to_a_lead_without_a_recorded_yes`.
+- Sample data and test set-up (not assertions): the sample leads in `tests/demo_data.py` and four direct inserts in `tests/test_app.py` were created without a consent time, which a real sign-up never is. Each now carries one. No assertion was changed, loosened or removed. Without this the "attorney hold" and "unsubscribe" tests would have passed without testing anything.
+
+### Checked / not checked
+
+- Checked: full suite; the new test against the old code.
+- Not checked: emails to real people (none go out while `attorney_approved` is 0).
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 56 | Outreach to fund managers found in Form D filings goes to people who never said yes. US law (CAN-SPAM) allows a first business email if it carries the postal address, an honest sender and an unsubscribe link, and if the do-not-email list is honoured; some states and the attorney may see it differently. Diane's rule is "a yes first". Which rule governs outreach? | Unchanged: a founder approves every outreach email before it goes, it is held while `attorney_approved` is 0, and it carries the unsubscribe line. |
+
+
 ## 12 November 2026 · Claude (builder) · Change 38: label every field and button; readable button text; underlined links in text
 
 ### What happened

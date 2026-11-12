@@ -443,8 +443,8 @@ class LaunchFeatures(Base):
             self.assertIn(b"Not open yet", self.c.get("/signup").data)
             # 1,248 more accredited leads arrive (an unsubscribed one and a not-accredited one don't count)
             for i in range(1248):
-                db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at) VALUES (?, 'accredited', 'income', 'webinar', ?)", ("lead%d@x.com" % i, "2026-10-01T00:00:00+00:00"))
-            db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, unsubscribed) VALUES ('gone@x.com', 'accredited', 'income', '', '2026-10-01T00:00:00+00:00', 1)")
+                db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, consent_at, consent_text) VALUES (?, 'accredited', 'income', 'webinar', ?, '2026-10-01T00:00:00+00:00', 'test yes')", ("lead%d@x.com" % i, "2026-10-01T00:00:00+00:00"))
+            db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, unsubscribed, consent_at, consent_text) VALUES ('gone@x.com', 'accredited', 'income', '', '2026-10-01T00:00:00+00:00', 1, '2026-10-01T00:00:00+00:00', 'test yes')")
             db.execute("INSERT INTO calculator_leads(email, result, source, created_at) VALUES ('no@x.com', 'not_accredited', '', '2026-10-01T00:00:00+00:00')")
             db.commit()
             self.assertEqual(billing.readiness()["leads"], 1250)
@@ -733,7 +733,7 @@ class LaunchFeatures(Base):
         with self.app.app_context():
             db = get_db()
             for i, res in enumerate(("accredited", "accredited", "not_accredited")):
-                db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at) VALUES (?, ?, 'income', 'linkedin', ?)", ("r%d@x.com" % i, res, now_iso()))
+                db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, consent_at, consent_text) VALUES (?, ?, 'income', 'linkedin', ?, '2026-10-01T00:00:00+00:00', 'test yes')", ("r%d@x.com" % i, res, now_iso()))
             db.commit()
             rows = {(r["month"], r["source"]): r for r in metrics.roi()}
             row = rows[(month, "linkedin")]
@@ -1180,7 +1180,7 @@ class ReviewOf16October(Base):
         from luminaz import jobs, mail
         with self.app.app_context(), self.app.test_request_context():
             db = get_db()
-            db.execute("INSERT INTO calculator_leads(email, result, basis, created_at) VALUES ('held@x.com', 'accredited', 'income', ?)", (now_iso(),)); db.commit()
+            db.execute("INSERT INTO calculator_leads(email, result, basis, created_at, consent_at, consent_text) VALUES ('held@x.com', 'accredited', 'income', ?, '2026-10-01T00:00:00+00:00', 'test yes')", (now_iso(),)); db.commit()
             set_setting("attorney_approved", "0")
             self.assertIn("attorney", mail.marketing_block())
             self.assertEqual(jobs.send_education(), 0)
@@ -2056,3 +2056,20 @@ class ChangesOf12November(Base):
         self.assertGreaterEqual(ratio(text, var["sun"]), 4.5)            # WCAG AA for normal text
         self.assertGreaterEqual(ratio(text, "#d97a1c"), 4.5)             # the hover colour too
         self.assertIn("p a:not(.btn),label a,.small a,.muted a{text-decoration:underline}", css)
+
+    def test_39_no_marketing_email_goes_to_a_lead_without_a_recorded_yes(self):
+        from luminaz import jobs
+        self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "yes@x.com", "consent": "on"})
+        with self.app.app_context():
+            db = get_db()
+            lead = db.execute("SELECT * FROM calculator_leads WHERE email = 'yes@x.com'").fetchone()
+            self.assertTrue(lead["consent_at"] and lead["consent_text"])           # the box was ticked and the yes was recorded
+            db.execute("UPDATE calculator_leads SET consent_at = NULL WHERE email = 'yes@x.com'")
+            db.commit()
+            others = db.execute("SELECT COUNT(DISTINCT email) FROM calculator_leads WHERE result = 'accredited' AND consent_at IS NOT NULL").fetchone()[0]
+            with self.app.test_request_context():
+                self.assertEqual(jobs.send_education(), others)                    # the lead with no recorded yes is skipped
+            self.assertEqual(db.execute("SELECT sequence_step FROM calculator_leads WHERE email = 'yes@x.com'").fetchone()[0], 0)
+        src = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "luminaz", "jobs.py"), encoding="utf-8").read()
+        self.assertEqual(src.count("consent_at IS NOT NULL"), 2)                   # the weekly series and the catalog-open note

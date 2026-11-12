@@ -66,7 +66,7 @@ def send_education(as_of=None):
         return 0            # section 5: nothing to real people until the attorney approves; the sequence waits where it is
     as_of = as_of or dt.datetime.now(dt.timezone.utc)
     week_ago = (as_of - dt.timedelta(days=7)).replace(microsecond=0).isoformat()
-    due = db.execute("SELECT l.* FROM calculator_leads l WHERE l.result = 'accredited' AND l.unsubscribed = 0"
+    due = db.execute("SELECT l.* FROM calculator_leads l WHERE l.result = 'accredited' AND l.unsubscribed = 0 AND l.consent_at IS NOT NULL"
                      " AND l.sequence_step < ? AND (l.last_sent_at IS NULL OR l.last_sent_at <= ?)"
                      " AND l.email NOT IN (SELECT email FROM suppressions)"
                      " AND l.email NOT IN (SELECT email FROM users WHERE marketing_opt_in = 0)", (len(EMAILS), week_ago)).fetchall()
@@ -103,7 +103,7 @@ def send_catalog_open_notices(limit=500):
     db = get_db()
     if mail.marketing_block() or billing.catalog_opened(record=False) is None:
         return 0
-    due = db.execute("SELECT * FROM calculator_leads WHERE result = 'accredited' AND unsubscribed = 0 AND catalog_notified_at IS NULL"
+    due = db.execute("SELECT * FROM calculator_leads WHERE result = 'accredited' AND unsubscribed = 0 AND consent_at IS NOT NULL AND catalog_notified_at IS NULL"
                      " AND email NOT IN (SELECT email FROM suppressions)"
                      " AND email NOT IN (SELECT email FROM users WHERE marketing_opt_in = 0 OR role != 'investor')"
                      " ORDER BY created_at LIMIT ?", (limit,)).fetchall()

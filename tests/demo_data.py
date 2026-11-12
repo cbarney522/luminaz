@@ -61,6 +61,6 @@ def load():
     db.execute("INSERT INTO interest(investor_id, fund_id, kind, created_at) VALUES (?, ?, 'watch', ?)", (inv2, fund1, now()))
     db.execute("INSERT INTO requests(fund_id, investor_id, message, status, created_at) VALUES (?, ?, 'Interested in the HVAC roll-up thesis. Please send the PPM.', 'new', ?)", (fund1, inv, now()))
     for e, r in (("lead1@example.com", "accredited"), ("lead2@example.com", "not_accredited"), ("lead3@example.com", "accredited")):
-        db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at) VALUES (?, ?, ?, 'demo', ?)", (e, r, "income" if r == "accredited" else None, now()))
+        db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, consent_at, consent_text) VALUES (?, ?, ?, 'demo', ?, ?, 'demo sample: ticked the consent box')", (e, r, "income" if r == "accredited" else None, now(), now()))
     db.commit()
     billing.run_billing(admin_id=admin)
