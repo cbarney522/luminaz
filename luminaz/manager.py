@@ -11,7 +11,7 @@ from flask import (Blueprint, abort, flash, g, redirect, render_template, reques
 
 from .auth import login_required, create_user
 from .db import get_db, now, audit, setting, CATEGORIES
-from . import billing
+from . import billing, mail
 
 bp = Blueprint("manager", __name__, url_prefix="/managers")
 
@@ -51,6 +51,9 @@ def signup():
     if request.method == "POST":
         if not request.form.get("consent"):
             flash("Please agree to receive account notices by email; listings can't work without them.", "error")
+            return render_template("manager/signup.html")
+        if not request.form.get("adult"):
+            flash(mail.AGE_REFUSAL, "error")
             return render_template("manager/signup.html")
         uid, err = create_user(request.form["email"], request.form["password"], "manager", request.form["name"])
         if err:

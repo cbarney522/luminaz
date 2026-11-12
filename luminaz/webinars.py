@@ -76,13 +76,16 @@ def signup(webinar_id):
         if not request.form.get("consent"):
             flash("Please tick the box agreeing to receive the webinar details and emails.", "error")
             return render_template("webinars/signup.html", w=w, name=name, email=email)
+        if not request.form.get("adult"):
+            flash(mail.AGE_REFUSAL, "error")
+            return render_template("webinars/signup.html", w=w, name=name, email=email)
         existing = db.execute("SELECT * FROM webinar_registrations WHERE webinar_id = ? AND email = ?", (webinar_id, email)).fetchone()
         if existing:
             return render_template("webinars/registered.html", w=w, reg=existing, again=True)
         token = "w" + secrets.token_urlsafe(24)
         source = (request.args.get("src") or session.get("src", "") or "")[:40].lower()
-        db.execute("INSERT INTO webinar_registrations(webinar_id, name, email, source, consent_at, consent_text, token, created_at, campaign)"
-                   " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (webinar_id, name, email, source, now(), CONSENT_WEBINAR, token, now(), (session.get("campaign") or "")[:12]))
+        db.execute("INSERT INTO webinar_registrations(webinar_id, name, email, source, consent_at, consent_text, token, created_at, campaign, age_confirmed_at)"
+                   " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (webinar_id, name, email, source, now(), CONSENT_WEBINAR, token, now(), (session.get("campaign") or "")[:12], now()))
         audit("webinar_registered", {"webinar_id": webinar_id, "source": source})
         db.commit()
         reg = db.execute("SELECT * FROM webinar_registrations WHERE token = ?", (token,)).fetchone()

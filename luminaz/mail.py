@@ -25,6 +25,10 @@ def init_app(app):
     os.makedirs(app.config["MAIL_OUTBOX"], exist_ok=True)
 
 
+AGE_CONFIRMATION = "I am 18 or older."
+AGE_REFUSAL = "Luminaz is for people 18 or older. Please tick the box to confirm you are 18 or older."
+
+
 CONSENT_CALCULATOR = ("I agree to receive my result and ongoing educational emails about accredited investing from Luminaz. "
                       "I can unsubscribe at any time using the link in every email.")
 CONSENT_ACCOUNT = ("I agree to receive account and service notices by email for as long as I have a Luminaz account, and ongoing "

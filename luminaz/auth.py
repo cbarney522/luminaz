@@ -212,9 +212,9 @@ def create_user(email, password, role, name="", accreditation_basis=None):
     token = secrets.token_urlsafe(32)
     cur = db.execute(
         "INSERT INTO users(email, password_hash, role, name, confirm_token, accreditation_basis, accreditation_attested_at, created_at,"
-        " consent_at, consent_text, unsub_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        " consent_at, consent_text, unsub_token, age_confirmed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (email, generate_password_hash(password), role, name.strip(), token,
-         accreditation_basis, now() if accreditation_basis else None, now(), now(), mail.CONSENT_ACCOUNT, "u" + secrets.token_urlsafe(24)))
+         accreditation_basis, now() if accreditation_basis else None, now(), now(), mail.CONSENT_ACCOUNT, "u" + secrets.token_urlsafe(24), now()))
     db.commit()
     link = url_for("auth.confirm", token=token, _external=True)
     mail.send(email, "Confirm your Luminaz email",

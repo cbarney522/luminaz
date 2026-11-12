@@ -474,6 +474,9 @@ MIGRATIONS = [
     ("users", "unsub_token", "TEXT"),
     ("users", "consent_at", "TEXT"),
     ("users", "consent_text", "TEXT"),
+    ("users", "age_confirmed_at", "TEXT"),                  # the "I am 18 or older" box and its time (change 40)
+    ("calculator_leads", "age_confirmed_at", "TEXT"),
+    ("webinar_registrations", "age_confirmed_at", "TEXT"),
     ("outreach", "unsub_token", "TEXT"),
     ("invoices", "live_days", "INTEGER"),          # days of the service month the listing was live (billing in arrears, 14 Oct 2026)
     ("users", "paused_at", "TEXT"),                 # an investor who paused: no emails, shortlist hidden, until they resume

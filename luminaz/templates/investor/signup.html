@@ -3,6 +3,7 @@
 <form class="stack" method="post"><label for="f-name">Your name</label><input id="f-name" name="name" required><label for="f-email">Email</label><input id="f-email" name="email" type="email" required><label for="f-password">Password (10+ characters)</label><input id="f-password" name="password" type="password" minlength="10" required>
 <h3>How you qualify as an accredited investor</h3>
 {% for key, label in bases %}<label style="font-weight:400"><input type="radio" name="basis" value="{{ key }}" style="width:auto"> {{ label }}</label>{% endfor %}
+<label for="f-adult" style="font-weight:400"><input id="f-adult" type="checkbox" name="adult" style="width:auto" required> I am 18 or older.</label>
 <label style="font-weight:400;margin-top:14px"><input type="checkbox" name="attest" style="width:auto"> I confirm the statement I selected is true. I understand that Luminaz does not verify accreditation, that each fund manager will verify my status before accepting any investment, and that Luminaz does not recommend funds or give investment advice.</label>
 <label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive account and service notices by email for as long as I have a Luminaz account, and ongoing educational and platform updates, which I can stop at any time from Notifications or the link in every email.</label>
 <p><button class="btn">Create account</button></p>

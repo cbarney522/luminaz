@@ -13,6 +13,7 @@
 <label for="f-license">Do you hold a Series 7, 65, or 82 license in good standing?</label><select id="f-license" name="license"><option value="no">No</option><option value="yes">Yes</option></select>
 <h3>Your result</h3>
 <label for="f-email">Email to send your result to</label><input id="f-email" name="email" type="email" required>
+<label for="f-adult" style="font-weight:400"><input id="f-adult" type="checkbox" name="adult" style="width:auto" required> I am 18 or older.</label>
 <label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive my result and ongoing educational emails about accredited investing from Luminaz (about one a week). I can unsubscribe at any time using the link in every email. <a href="{{ url_for('investor.legal', doc='privacy') }}">Privacy policy</a>.</label>
 <p><button class="btn">Show my result</button></p>
 <p class="small muted">This is an educational tool, not legal, tax, or investment advice. A fund manager will verify your status before any investment.</p>

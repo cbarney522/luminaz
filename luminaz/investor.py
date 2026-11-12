@@ -122,11 +122,14 @@ def calculator():
         if email and "@" in email and not request.form.get("consent"):
             flash("Please tick the box agreeing to receive your result and the educational emails, or leave the email blank.", "error")
             return redirect(url_for("investor.calculator"))
+        if email and "@" in email and not request.form.get("adult"):
+            flash(mail.AGE_REFUSAL, "error")
+            return redirect(url_for("investor.calculator"))
         if email and "@" in email:
             db = get_db()
-            db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, consent_at, consent_text, campaign) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            db.execute("INSERT INTO calculator_leads(email, result, basis, source, created_at, consent_at, consent_text, campaign, age_confirmed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                        (email, result, basis, (request.args.get("src") or session.get("src", ""))[:40].lower(), now(), now(), mail.CONSENT_CALCULATOR,
-                        (session.get("campaign") or "")[:12]))
+                        (session.get("campaign") or "")[:12], now()))
             db.commit()
             if mail.suppressed(email):
                 # Rule 4.8: an unsubscribe is lifted only by the mailbox owner, through the link this sends.
@@ -162,6 +165,8 @@ def signup():
             flash("Please confirm the attestation.", "error")
         elif not request.form.get("consent"):
             flash("Please agree to receive account notices by email; the account can't work without them.", "error")
+        elif not request.form.get("adult"):
+            flash(mail.AGE_REFUSAL, "error")
         else:
             uid, err = create_user(request.form["email"], request.form["password"], "investor", request.form["name"], basis)
             if err:

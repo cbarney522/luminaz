@@ -43,7 +43,7 @@ class Flows(Base):
         ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0) Chrome/120"}
         self.c.get("/", headers=ua)
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "d1@x.com", "consent": "on"}, headers=ua)
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "d1@x.com", "consent": "on", "adult": "on"}, headers=ua)
         today = dt.date.today()
         at = lambda hour, minute=0, days=0: dt.datetime.combine(today + dt.timedelta(days=days), dt.time(hour, minute))
         with self.app.app_context():
@@ -149,7 +149,7 @@ class Flows(Base):
             time.tzset()
 
     def test_manager_signup_creates_firm_and_sends_confirmation(self):
-        r = self.c.post("/managers/signup", data={"name": "A", "firm_name": "Acme Capital", "email": "a@x.com", "password": "longpassword1", "state": "ga", "consent": "on"})
+        r = self.c.post("/managers/signup", data={"name": "A", "firm_name": "Acme Capital", "email": "a@x.com", "password": "longpassword1", "state": "ga", "consent": "on", "adult": "on"})
         self.assertEqual(r.status_code, 200)
         self.assertIn(b"Check your email", r.data)
         with self.app.app_context():
@@ -161,7 +161,7 @@ class Flows(Base):
             self.assertIn("/confirm/", body)
 
     def test_unconfirmed_cannot_login(self):
-        self.c.post("/managers/signup", data={"name": "A", "firm_name": "Acme", "email": "a@x.com", "password": "longpassword1", "consent": "on"})
+        self.c.post("/managers/signup", data={"name": "A", "firm_name": "Acme", "email": "a@x.com", "password": "longpassword1", "consent": "on", "adult": "on"})
         r = self.c.post("/login", data={"email": "a@x.com", "password": "longpassword1"})
         self.assertIn(b"confirm your email", r.data)
 
@@ -175,7 +175,7 @@ class Flows(Base):
 
     def test_calculator_keeps_only_result_and_email(self):
         r = self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                             "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lead@x.com", "consent": "on"})
+                                             "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lead@x.com", "consent": "on", "adult": "on"})
         self.assertIn(b"appear to qualify", r.data)
         with self.app.app_context():
             lead = get_db().execute("SELECT * FROM calculator_leads").fetchone()
@@ -184,11 +184,11 @@ class Flows(Base):
 
     def test_calculator_net_worth_excludes_home(self):
         r = self.c.post("/calculator", data={"joint": "no", "income_last": "0", "income_prior": "0", "income_expect": "no",
-                                             "assets": "2000000", "home_value": "900000", "liabilities": "600000", "mortgage": "600000", "license": "no", "email": "l@x.com", "consent": "on"})
+                                             "assets": "2000000", "home_value": "900000", "liabilities": "600000", "mortgage": "600000", "license": "no", "email": "l@x.com", "consent": "on", "adult": "on"})
         self.assertIn(b"You appear to qualify", r.data)   # 2.0M - 0.9M home - (0.6M - 0.6M mortgage) = 1.1M
     def test_calculator_net_worth_fail(self):
         r = self.c.post("/calculator", data={"joint": "no", "income_last": "0", "income_prior": "0", "income_expect": "no",
-                                             "assets": "1500000", "home_value": "900000", "liabilities": "100000", "mortgage": "0", "license": "no", "email": "l@x.com", "consent": "on"})
+                                             "assets": "1500000", "home_value": "900000", "liabilities": "100000", "mortgage": "0", "license": "no", "email": "l@x.com", "consent": "on", "adult": "on"})
         self.assertIn(b"currently appear to meet", r.data)   # 1.5M - 0.9M - 0.1M = 500k
 
 class DemoFlows(Base):
@@ -664,7 +664,7 @@ class LaunchFeatures(Base):
         # Locked for the public: coming soon, and no sign-up accepted
         self.assertIn(b"Coming soon", self.c.get("/webinars").data)
         self.assertIn(b"Coming soon", self.c.get("/webinars/%d" % wid).data)
-        self.c.post("/webinars/%d?src=linkedin" % wid, data={"name": "Pat Early", "email": "pat@x.com", "consent": "on"})
+        self.c.post("/webinars/%d?src=linkedin" % wid, data={"name": "Pat Early", "email": "pat@x.com", "consent": "on", "adult": "on"})
         with self.app.app_context():
             self.assertEqual(get_db().execute("SELECT COUNT(*) FROM webinar_registrations").fetchone()[0], 0)
             self.assertEqual(webinars.send_reminders(), 0)
@@ -673,7 +673,7 @@ class LaunchFeatures(Base):
         self.assertIn(b"Save my seat", self.c.get("/webinars").data)
         r = self.c.post("/webinars/%d?src=linkedin" % wid, data={"name": "Pat Early", "email": "Pat@X.com"})
         self.assertIn(b"tick the box", r.data)
-        r = self.c.post("/webinars/%d?src=linkedin" % wid, data={"name": "Pat Early", "email": "Pat@X.com", "consent": "on"})
+        r = self.c.post("/webinars/%d?src=linkedin" % wid, data={"name": "Pat Early", "email": "Pat@X.com", "consent": "on", "adult": "on"})
         self.assertIn(b"You're registered", r.data)
         with self.app.app_context():
             reg = get_db().execute("SELECT * FROM webinar_registrations").fetchone()
@@ -686,7 +686,7 @@ class LaunchFeatures(Base):
             return [t for t in texts if subject in t]
         conf = mails("Subject: You're registered: How Private Funds Work")
         self.assertEqual(len(conf), 1); self.assertIn("/webinars/%d/join/%s" % (wid, reg["token"]), conf[0]); self.assertIn("/unsubscribe/" + reg["token"], conf[0])
-        r = self.c.post("/webinars/%d" % wid, data={"name": "Pat Early", "email": "pat@x.com", "consent": "on"})
+        r = self.c.post("/webinars/%d" % wid, data={"name": "Pat Early", "email": "pat@x.com", "consent": "on", "adult": "on"})
         self.assertIn(b"already registered", r.data)                                       # no duplicate, no second email
         self.assertEqual(len(mails("Subject: You're registered: How Private Funds Work")), 1)
         # The personal join link records the click and sends them to Zoom
@@ -782,7 +782,7 @@ class LaunchFeatures(Base):
     def test_education_sequence_sends_weekly_and_honors_unsubscribe(self):
         from luminaz import jobs
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lead@x.com", "consent": "on"})
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lead@x.com", "consent": "on", "adult": "on"})
         with self.app.app_context():
             before = len(os.listdir(self.app.config["MAIL_OUTBOX"]))
             n = get_db().execute("SELECT COUNT(DISTINCT email) FROM calculator_leads WHERE result = 'accredited'").fetchone()[0]
@@ -927,7 +927,7 @@ class LaunchFeatures(Base):
         self.c.get("/?src=linkedin", headers=ua); self.c.get("/calculator", headers=ua); self.c.get("/learn", headers=ua)
         self.c.get("/", headers={"User-Agent": "Googlebot/2.1"})                    # bots not counted
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "t@x.com", "consent": "on"}, headers=ua)
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "t@x.com", "consent": "on", "adult": "on"}, headers=ua)
         with self.app.app_context():
             db = get_db()
             self.assertEqual(db.execute("SELECT COUNT(*) FROM page_views").fetchone()[0], 3)
@@ -961,7 +961,7 @@ class LaunchFeatures(Base):
                                              "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "c@x.com"}, follow_redirects=True)
         self.assertIn(b"tick the box", r.data)
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "c@x.com", "consent": "on"})
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "c@x.com", "consent": "on", "adult": "on"})
         with self.app.app_context():
             lead = get_db().execute("SELECT * FROM calculator_leads WHERE email = 'c@x.com'").fetchone()
             self.assertEqual(lead["consent_text"], mail.CONSENT_CALCULATOR); self.assertTrue(lead["consent_at"])
@@ -1234,7 +1234,7 @@ class ReviewOf16October(Base):
         # Rule 4.8 (review finding 4). Only a link sent to the mailbox lifts the do-not-email entry.
         from luminaz import jobs
         calc = {"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes", "assets": "0",
-                "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lee@x.com", "consent": "on"}
+                "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "lee@x.com", "consent": "on", "adult": "on"}
         self.c.post("/calculator", data=calc)
         with self.app.app_context():
             get_db().execute("INSERT INTO suppressions(email, reason, created_at) VALUES ('lee@x.com', 'unsubscribe link', ?)", (now_iso(),))
@@ -1346,7 +1346,7 @@ class ReviewOf16October(Base):
         # ?src=LinkedIn on a link and "LinkedIn" typed as spend land on one row
         self.c.get("/?src=LinkedIn")
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes", "assets": "0",
-                                         "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "li@x.com", "consent": "on"})
+                                         "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "li@x.com", "consent": "on", "adult": "on"})
         self.login("admin@luminaz.test")
         self.c.post("/admin/metrics", data={"month": dt.date.today().strftime("%Y-%m"), "source": "LinkedIn", "amount": "100"})
         with self.app.app_context():
@@ -1847,7 +1847,7 @@ class ChangesOf23October(Base):
         self.c.get("/learn", headers=ua)
         r = self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
                                              "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no",
-                                             "email": "frompost@x.com", "consent": "on"}, headers=ua)
+                                             "email": "frompost@x.com", "consent": "on", "adult": "on"}, headers=ua)
         self.assertIn(b"appear to qualify", r.data)
         with self.app.app_context():
             db = get_db()
@@ -2060,7 +2060,7 @@ class ChangesOf12November(Base):
     def test_39_no_marketing_email_goes_to_a_lead_without_a_recorded_yes(self):
         from luminaz import jobs
         self.c.post("/calculator", data={"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
-                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "yes@x.com", "consent": "on"})
+                                         "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no", "email": "yes@x.com", "consent": "on", "adult": "on"})
         with self.app.app_context():
             db = get_db()
             lead = db.execute("SELECT * FROM calculator_leads WHERE email = 'yes@x.com'").fetchone()
@@ -2073,3 +2073,72 @@ class ChangesOf12November(Base):
             self.assertEqual(db.execute("SELECT sequence_step FROM calculator_leads WHERE email = 'yes@x.com'").fetchone()[0], 0)
         src = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "luminaz", "jobs.py"), encoding="utf-8").read()
         self.assertEqual(src.count("consent_at IS NOT NULL"), 2)                   # the weekly series and the catalog-open note
+
+
+class ChangesOf12NovemberAgeBox(Base):
+    """Change 40: nobody opens an account or gives an email without ticking 'I am 18 or older'; the tick and its time are recorded."""
+    CALC = {"joint": "no", "income_last": "250000", "income_prior": "210000", "income_expect": "yes",
+            "assets": "0", "home_value": "0", "liabilities": "0", "mortgage": "0", "license": "no"}
+
+    def test_40_age_box_is_on_every_form_and_starts_unticked(self):
+        import re
+        for path in ("/calculator", "/managers/signup", "/signup"):
+            if path == "/signup":
+                with self.app.app_context():
+                    set_setting("catalog_opened_on", "2026-10-01")
+            body = self.c.get(path).get_data(as_text=True)
+            m = re.search(r'<input[^>]*name="adult"[^>]*>', body)
+            self.assertTrue(m, path)
+            self.assertNotIn("checked", m.group(0)); self.assertIn("required", m.group(0))
+            self.assertRegex(body, r'for="f-adult"'); self.assertIn('id="f-adult"', m.group(0))
+            self.assertIn("18 or older", body)
+
+    def test_40_calculator_refuses_an_email_without_the_age_tick_and_records_it_with(self):
+        from luminaz import mail
+        r = self.c.post("/calculator", data=dict(self.CALC, email="kid@x.com", consent="on"), follow_redirects=True)
+        self.assertIn(b"18 or older", r.data)
+        with self.app.app_context():
+            self.assertIsNone(get_db().execute("SELECT 1 FROM calculator_leads WHERE email = 'kid@x.com'").fetchone())
+        self.c.post("/calculator", data=dict(self.CALC, email="adult@x.com", consent="on", adult="on"))
+        with self.app.app_context():
+            lead = get_db().execute("SELECT * FROM calculator_leads WHERE email = 'adult@x.com'").fetchone()
+            self.assertTrue(lead["age_confirmed_at"])
+
+    def test_40_manager_sign_up_needs_the_age_tick_on_the_server_not_just_the_page(self):
+        data = {"name": "B", "firm_name": "B Cap", "email": "b@x.com", "password": "longpassword1", "consent": "on"}
+        r = self.c.post("/managers/signup", data=data)
+        self.assertIn(b"18 or older", r.data)
+        with self.app.app_context():
+            self.assertIsNone(get_db().execute("SELECT 1 FROM users WHERE email = 'b@x.com'").fetchone())
+        self.c.post("/managers/signup", data=dict(data, adult="on"))
+        with self.app.app_context():
+            u = get_db().execute("SELECT * FROM users WHERE email = 'b@x.com'").fetchone()
+            self.assertTrue(u["age_confirmed_at"])
+
+    def test_40_investor_sign_up_needs_the_age_tick(self):
+        with self.app.app_context():
+            set_setting("catalog_opened_on", "2026-10-01")
+        data = {"name": "I", "email": "i@x.com", "password": "longpassword1", "basis": "income", "attest": "on", "consent": "on"}
+        r = self.c.post("/signup", data=data)
+        self.assertIn(b"18 or older", r.data)
+        with self.app.app_context():
+            self.assertIsNone(get_db().execute("SELECT 1 FROM users WHERE email = 'i@x.com'").fetchone())
+        self.c.post("/signup", data=dict(data, adult="on"))
+        with self.app.app_context():
+            self.assertTrue(get_db().execute("SELECT age_confirmed_at FROM users WHERE email = 'i@x.com'").fetchone()[0])
+
+    def test_40_webinar_sign_up_needs_the_age_tick(self):
+        with self.app.app_context():
+            set_setting("attorney_approved", "1")
+            db = get_db()
+            db.execute("INSERT INTO webinars(title, starts_at, status, created_at) VALUES ('T', '2999-01-01T15:00:00+00:00', 'open', '2026-11-01T00:00:00+00:00')")
+            db.commit()
+            wid = db.execute("SELECT id FROM webinars").fetchone()[0]
+        data = {"name": "Pat", "email": "pat@x.com", "consent": "on"}
+        r = self.c.post("/webinars/%d" % wid, data=data)
+        self.assertIn(b"18 or older", r.data)
+        with self.app.app_context():
+            self.assertIsNone(get_db().execute("SELECT 1 FROM webinar_registrations").fetchone())
+        self.c.post("/webinars/%d" % wid, data=dict(data, adult="on"))
+        with self.app.app_context():
+            self.assertTrue(get_db().execute("SELECT age_confirmed_at FROM webinar_registrations").fetchone()[0])

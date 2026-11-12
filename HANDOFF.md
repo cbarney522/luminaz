@@ -5,6 +5,36 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 12 November 2026 · Claude (builder) · Change 40: the "I am 18 or older" box
+
+### What happened
+
+- Diane asked (12 November) for the age box to be coded. Decision 54 was still open (18 or 13). I built the builder's recommendation, an unticked "I am 18 or older" box, because it also keeps out anyone under 13. **The wording and the 18-or-13 line still need Diane's word and then the attorney's.** Changing to 13 later means changing one sentence in `luminaz/mail.py` and the four templates.
+- **78 of 78 tests pass** (73 before, 5 new). The 5 new tests fail on the old code. Backup: `../backups/app_2026-11-12_before_change_40.zip`.
+
+### Change 40
+
+- Four forms now have the box, unticked and required: investor sign-up, manager sign-up, the calculator email, the webinar sign-up. Each is a labelled checkbox (`f-adult`).
+- The server refuses without it (not only the page): no account, lead or registration is created, and the person sees `mail.AGE_REFUSAL`. The consent box is checked first, so existing consent messages are unchanged.
+- The time of the tick is stored in a new column `age_confirmed_at` on `users`, `calculator_leads` and `webinar_registrations` (added by the migration list in `db.py`). The wording is `mail.AGE_CONFIRMATION`. People who signed up before this change have no time on record.
+- Tests: class `ChangesOf12NovemberAgeBox`, five tests (box present, unticked and labelled on every form; each of the four refuses without it and records the time with it).
+- Test set-up (not assertions): the 16 posts in `tests/test_app.py` that carry `"consent": "on"` now also carry `"adult": "on"`.
+
+### Checked / not checked
+
+- Checked: full suite; the new tests against the old code.
+- Not checked: the pages in a real browser or screen reader. The label check from change 38 covers the new field.
+- It does not verify anyone's age. It is a recorded statement, like the accreditation attestation.
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 54 | 18 (built) or 13 as the age line, and the exact wording for the attorney. | The box says "I am 18 or older." |
+
+
+---
+
 ## 12 November 2026 · Claude (builder) · Change 39: no marketing email unless the person's yes is on record
 
 ### What happened
