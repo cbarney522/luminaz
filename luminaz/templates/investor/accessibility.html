@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% block title %}Accessibility - Luminaz{% endblock %}{% block description %}Make Luminaz easier to read, and how to use it with a screen reader or a keyboard.{% endblock %}{% block content %}
+<h1>Accessibility</h1>
+<p class="sub">We want everyone to be able to use Luminaz. This page says what you can change, what we have done, and what we have not tested yet.</p>
+<div class="card" id="display"><h2>Make the page easier to read</h2>
+<p class="small muted">These settings are saved on this device only. We do not send them anywhere.</p>
+<p><button type="button" class="btn quiet" data-lz="larger">Larger text</button> <button type="button" class="btn quiet" data-lz="smaller">Smaller text</button> <button type="button" class="btn quiet" data-lz="contrast" aria-pressed="false">High contrast</button> <button type="button" class="btn" data-lz="reset">Reset to normal</button></p>
+<p id="lz-status" role="status" aria-live="polite" class="small"></p></div>
+<div class="card"><h2>Using Luminaz with a screen reader or a keyboard</h2>
+<ul>
+<li>The first link on every page is "Skip to main content". Press Tab once, then Enter, to jump past the menu.</li>
+<li>Every form field has a label, and every button says what it does.</li>
+<li>Headings are used in order, so you can move between them with your screen reader's heading keys.</li>
+<li>Everything can be done with the keyboard: Tab to move, Enter or Space to press a button.</li>
+<li>Your browser's own zoom (Ctrl and +, or Command and +) also works, up to 200 percent.</li>
+</ul></div>
+<div class="card"><h2>What we have done, and what we have not</h2>
+<ul>
+<li>Done: labels on every field and button, readable button text, links that are underlined inside text, and an automated check of the main pages against the WCAG 2.1 A and AA guidelines.</li>
+<li>Not yet: a test by people who use screen readers every day. We have not had that done yet, so there may still be things that are hard to use.</li>
+</ul></div>
+<div class="card"><h2>Tell us what is hard to use</h2>
+<p>If something on Luminaz is hard for you to use, write to <a href="mailto:{{ setting('support_email') }}">{{ setting('support_email') }}</a> and say which page and what happened. A person will read it, and we will fix what we can or help you another way.</p></div>
+{% endblock %}

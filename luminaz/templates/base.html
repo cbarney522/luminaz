@@ -8,6 +8,7 @@
 <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}"><meta name="theme-color" content="#1f5fa8">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-180.png') }}"><script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head><body>
+<a class="skip" href="#main">Skip to main content</a>
 {% set manager_side = request.path.startswith('/managers') or (g.user and g.user.role == 'manager') %}
 <header class="top">
   <a class="brand" href="{{ url_for('manager.landing') if manager_side else url_for('investor.home') }}"><span class="sun"></span> Luminaz{% if manager_side %} <span class="brand-sub">for Fund Managers</span>{% endif %}</a>
@@ -24,9 +25,9 @@
       <a href="{{ url_for('investor.calculator') }}">Am I accredited?</a><a href="{{ url_for('investor.learn') }}">Learn</a><a href="{{ url_for('webinars.index') }}">Webinars</a><a href="{{ url_for('investor.about') }}">About</a><a href="{{ url_for('manager.landing') }}">For fund managers</a>
     {% endif %}
   </nav>
-  <div class="right">{% if g.user %}{{ g.user.name or g.user.email }} · <a href="{{ url_for('auth.logout') }}">Sign out</a>{% else %}<a href="{{ url_for('auth.login') }}">Sign in</a>{% endif %}</div>
+  <div class="right"><a href="{{ url_for('investor.accessibility') }}">Accessibility</a> · {% if g.user %}{{ g.user.name or g.user.email }} · <a href="{{ url_for('auth.logout') }}">Sign out</a>{% else %}<a href="{{ url_for('auth.login') }}">Sign in</a>{% endif %}</div>
 </header>
-<main class="{% block mainclass %}{% endblock %}">
+<main id="main" tabindex="-1" class="{% block mainclass %}{% endblock %}">
 {% with msgs = get_flashed_messages(with_categories=true) %}{% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}{% endwith %}
 {% block content %}{% endblock %}
 </main>

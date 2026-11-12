@@ -5,6 +5,36 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 12 November 2026 · Claude (builder) · Change 41: Accessibility button, skip link, no self-submitting dropdown
+
+### What happened
+
+- Diane asked for "a feature for blind people with a button". A button cannot read the site to a blind person (they use their own screen reader), so I built what helps: a skip link, a visible Accessibility button, a settings page, and the fix for the request-status dropdown. No claim of compliance is made anywhere.
+- **83 of 83 tests pass** (78 before, 5 new). The new tests fail on the old code. One existing assertion (`<main class="wide">`) was updated to the new tag, which now carries `id="main" tabindex="-1"`.
+
+### Change 41
+
+- `base.html`: "Skip to main content" is the first link on every page and lands on `<main id="main">`. An "Accessibility" link sits in the header on every page.
+- `/accessibility` (`investor.accessibility`, `templates/investor/accessibility.html`): buttons for larger text, smaller text, high contrast and reset. The choice is saved in this browser only (`localStorage`, `static/app.js`) and nothing goes to the server. The page also explains screen-reader and keyboard use, says what has been done and **what has not been tested** (no test by daily screen-reader users yet), and gives the support email.
+- `style.css`: skip-link, visible focus outline, text sizes, high-contrast colours.
+- `manager/fund_detail.html`: the request-status dropdown no longer submits when changed (WCAG 3.2.2); there is an "Update status" button.
+- Tests: class `ChangesOf12NovemberAccessibilityButton`, five tests.
+
+### Checked / not checked
+
+- Checked: full suite; the new tests against the old code.
+- Not checked: any of it in a real browser or with a real screen reader. High contrast and text size were not looked at by eye. The text-size setting uses CSS `zoom`, which older Firefox versions ignore.
+- The wording of the Accessibility page is the builder's draft. **Decision 55 (the accessibility statement wording) is still Diane's, and then the attorney's.**
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 55 | Wording of the accessibility page. | The builder's draft is live, with no compliance claim. |
+
+
+---
+
 ## 12 November 2026 · Claude (builder) · Change 40: the "I am 18 or older" box
 
 ### What happened

@@ -530,7 +530,7 @@ class LaunchFeatures(Base):
             db.commit()
         self.c.get("/logout"); self.login("investor2@luminaz.test")
         page = self.c.get("/funds").data
-        self.assertIn(b'class="tiles"', page); self.assertIn(b'<main class="wide">', page)
+        self.assertIn(b'class="tiles"', page); self.assertIn(b'<main id="main" tabindex="-1" class="wide">', page)
         self.assertLess(page.index(b"Ridgeline Acquisition Fund I"), page.index(b"Zeta Energy Fund I"))      # oldest listing first
         self.assertLess(page.index(b"Zeta Energy Fund I"), page.index(b"Alpha Timber Fund"))                # then by date, never by name
         self.assertNotIn(b"Acquire 6 to 8 founder-owned", page)                                            # strategy stays on the fund page
@@ -2142,3 +2142,56 @@ class ChangesOf12NovemberAgeBox(Base):
         self.c.post("/webinars/%d" % wid, data=dict(data, adult="on"))
         with self.app.app_context():
             self.assertTrue(get_db().execute("SELECT age_confirmed_at FROM webinar_registrations").fetchone()[0])
+
+
+class ChangesOf12NovemberAccessibilityButton(Base):
+    """Change 41: a skip link on every page, an Accessibility button in the header, and a page with larger text,
+    higher contrast and screen-reader help. No claim of compliance anywhere."""
+    PAGES = ("/", "/calculator", "/learn", "/about", "/managers/", "/login", "/accessibility")
+
+    def _read(self, rel):
+        return open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), rel), encoding="utf-8").read()
+
+    def test_41_every_page_starts_with_a_skip_link_that_lands_on_the_main_area(self):
+        import re
+        for path in self.PAGES:
+            body = self.c.get(path).get_data(as_text=True)
+            first_link = re.search(r"<a [^>]*>", body[body.index("<body"):]).group(0)
+            self.assertIn('href="#main"', first_link, path)                      # the very first thing a keyboard reaches
+            self.assertRegex(body, r'<main[^>]*id="main"[^>]*tabindex="-1"', path)
+
+    def test_41_every_page_has_an_accessibility_button_in_the_header(self):
+        import re
+        for path in self.PAGES:
+            body = self.c.get(path).get_data(as_text=True)
+            head = body[body.index("<header"):body.index("</header>")]
+            self.assertRegex(head, r'<a [^>]*href="/accessibility"[^>]*>Accessibility</a>', path)
+
+    def test_41_the_accessibility_page_has_labelled_controls_and_help_and_no_claim_of_compliance(self):
+        import re
+        body = self.c.get("/accessibility").get_data(as_text=True)
+        for name in ("larger", "smaller", "contrast", "reset"):
+            self.assertRegex(body, r'<button[^>]*type="button"[^>]*data-lz="%s"' % name)
+        self.assertRegex(body, r'<button[^>]*data-lz="contrast"[^>]*aria-pressed="false"')
+        for word in ("screen reader", "keyboard", "support@"):
+            self.assertIn(word, body.replace("Screen reader", "screen reader"))
+        text = body.lower()
+        for banned in ("fully accessible", "compliant", "certified", "guarantee"):
+            self.assertNotIn(banned, text)                                           # we say what is done, not that we pass
+        self.assertIn("not yet", text)                                              # and say plainly what is not tested
+
+    def test_41_the_settings_script_and_styles_exist_and_use_no_third_party(self):
+        js = self._read("luminaz/static/app.js"); css = self._read("luminaz/static/style.css")
+        for token in ("localStorage", "lz-large", "lz-contrast", "data-lz"):
+            self.assertIn(token, js)
+        for token in ("html.lz-large", "html.lz-contrast", ".skip:focus"):
+            self.assertIn(token, css)
+        self.assertNotIn("http://", js); self.assertNotIn("https://", js)
+
+    def test_41_no_control_submits_a_form_just_because_it_was_changed(self):
+        import glob
+        for p in glob.glob(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "luminaz", "templates", "**", "*.html"), recursive=True):
+            src = open(p, encoding="utf-8").read()
+            self.assertNotIn("onchange=", src, p)                                    # WCAG 3.2.2: a change must not act by itself
+        src = self._read("luminaz/templates/manager/fund_detail.html")
+        self.assertRegex(src, r'name="status"[^>]*>.*?</select><button class="btn sm quiet">Update status</button>')

@@ -33,6 +33,11 @@ def about():
     return render_template("investor/about.html")
 
 
+@bp.route("/accessibility")
+def accessibility():
+    return render_template("investor/accessibility.html")
+
+
 # ---------------------------------------------------------------- learn (public, indexable)
 
 def _slug(t):

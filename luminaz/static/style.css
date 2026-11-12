@@ -50,3 +50,16 @@ footer.ft p{margin:0 0 8px}footer.ft .line{margin-top:14px;text-align:center}
 @media (max-width:760px){footer.ft .cols{grid-template-columns:1fr}}
 /* accessibility (change 38): links inside sentences are underlined, not told apart by colour alone */
 p a:not(.btn),label a,.small a,.muted a{text-decoration:underline}
+
+/* accessibility (change 41): skip link, and the reader's own display choices (saved on the device by app.js) */
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:10px 14px;z-index:100;border-radius:0 0 8px 0}
+.skip:focus{left:0}
+main:focus{outline:none}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+html.lz-large body{zoom:1.25}
+html.lz-xlarge body{zoom:1.5}
+html.lz-small body{zoom:.9}
+html.lz-contrast{--ink:#000;--muted:#1b2430;--line:#1b2430;--bg:#fff;--card:#fff;--sky:#0b3d91;--sky-2:#0b3d91}
+html.lz-contrast a{color:#0b3d91;text-decoration:underline}
+html.lz-contrast .btn,html.lz-contrast .btn.quiet{border:2px solid #000}
+html.lz-contrast .btn[aria-pressed="true"]{background:#000;color:#fff}
