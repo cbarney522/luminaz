@@ -11,8 +11,8 @@ h1{font-size:24px;margin:0 0 6px}h2{font-size:18px;margin:22px 0 8px}h3{font-siz
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}.stat b{font-size:22px;display:block}.stat span{color:var(--muted);font-size:13px}
 table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{background:#f2f5f9;font-weight:600}
-.btn{display:inline-block;background:var(--sun);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
-.btn:hover{background:#d97a1c;text-decoration:none}.btn.alt{background:var(--sky)}.btn.alt:hover{background:#174b86}.btn.quiet{background:#eef2f7;color:var(--ink)}.btn.quiet:hover{background:#e1e7ef}.btn.danger{background:var(--bad)}
+.btn{display:inline-block;background:var(--sun);color:var(--ink);border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{background:#d97a1c;text-decoration:none}.btn.alt{background:var(--sky);color:#fff}.btn.alt:hover{background:#174b86}.btn.quiet{background:#eef2f7;color:var(--ink)}.btn.quiet:hover{background:#e1e7ef}.btn.danger{background:var(--bad);color:#fff}
 .btn.sm{padding:5px 10px;font-size:13px}
 form.stack label{display:block;font-weight:600;margin:12px 0 4px;font-size:14px}form.stack input,form.stack select,form.stack textarea{width:100%;padding:9px;border:1px solid #c9d1db;border-radius:8px;font:inherit}
 form.stack textarea{min-height:90px}form.stack .hint{color:var(--muted);font-size:13px;margin-top:3px}form.stack .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -48,3 +48,5 @@ footer.ft .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px}
 footer.ft h4{font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px;color:var(--ink)}
 footer.ft p{margin:0 0 8px}footer.ft .line{margin-top:14px;text-align:center}
 @media (max-width:760px){footer.ft .cols{grid-template-columns:1fr}}
+/* accessibility (change 38): links inside sentences are underlined, not told apart by colour alone */
+p a:not(.btn),label a,.small a,.muted a{text-decoration:underline}

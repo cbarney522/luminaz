@@ -7,26 +7,26 @@
 
 <div class="grid2">
 <form method="post" class="card stack"><h3>Lead</h3>
-<div class="row"><div><label>Contact name</label><input name="contact_name" value="{{ o.contact_name }}"></div><div><label>Email</label><input name="email" type="email" value="{{ o.email }}"></div></div>
-<div class="row"><div><label>Fund name</label><input name="fund_name" value="{{ o.fund_name }}"></div><div><label>Firm</label><input name="firm_name" value="{{ o.firm_name }}"></div></div>
-<div class="row"><div><label>Category</label><select name="category">{% for c in [''] + categories %}<option {% if c == o.category %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div><div><label>Phone</label><input name="phone" value="{{ o.phone }}"></div></div>
+<div class="row"><div><label for="f-contact_name">Contact name</label><input id="f-contact_name" name="contact_name" value="{{ o.contact_name }}"></div><div><label for="f-email">Email</label><input id="f-email" name="email" type="email" value="{{ o.email }}"></div></div>
+<div class="row"><div><label for="f-fund_name">Fund name</label><input id="f-fund_name" name="fund_name" value="{{ o.fund_name }}"></div><div><label for="f-firm_name">Firm</label><input id="f-firm_name" name="firm_name" value="{{ o.firm_name }}"></div></div>
+<div class="row"><div><label for="f-category">Category</label><select id="f-category" name="category">{% for c in [''] + categories %}<option {% if c == o.category %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div><div><label for="f-phone">Phone</label><input id="f-phone" name="phone" value="{{ o.phone }}"></div></div>
 <p class="small muted">Target raise (Form D): {{ o.target_raise or '—' }} · filed {{ o.filed[:10] or '—' }} · source {{ o.source }}</p>
-<label>Notes (calls, what they said)</label><textarea name="notes" rows="4">{{ o.notes }}</textarea>
+<label for="f-notes">Notes (calls, what they said)</label><textarea id="f-notes" name="notes" rows="4">{{ o.notes }}</textarea>
 <label><input type="checkbox" name="credit_offered" {% if o.credit_offered %}checked{% endif %}> Offer a {{ setting('founding_rate')|money }} win-back credit (someone you've spoken with before who said "later")</label>
 <div><button class="btn sm" name="action" value="save">Save</button> <button class="btn sm" name="action" value="draft">{{ 'Re-draft email' if o.draft_body else 'Draft the email' }}</button></div>
 </form>
 
 <form method="post" class="card stack"><h3>Email</h3>
 {% if o.status == 'new' %}<p class="muted">No draft yet. Click "Draft the email" and the agent will write it from the filing.</p>{% endif %}
-<label>Subject</label><input name="draft_subject" value="{{ o.draft_subject }}">
-<label>Body</label><textarea name="draft_body" rows="18">{{ o.draft_body }}</textarea>
+<label for="f-draft_subject">Subject</label><input id="f-draft_subject" name="draft_subject" value="{{ o.draft_subject }}">
+<label for="f-draft_body">Body</label><textarea id="f-draft_body" name="draft_body" rows="18">{{ o.draft_body }}</textarea>
 {% if o.status in ('new', 'drafted') %}<p><button class="btn" name="action" value="send" {% if not o.email %}disabled title="Add an email address first"{% endif %}>Approve and send to {{ o.email or '(no address)' }}</button></p>
 {% else %}<p class="small muted">Already sent. Edit the lead's status below when they reply.</p>{% endif %}
 {% if held %}<p class="small" style="color:#b00">Sending is {{ held }}. Drafts keep.</p>{% endif %}
 </form>
 </div>
 {% if o.status == 'followup_drafted' %}<form method="post" class="card stack"><h3>Follow-up, drafted by the daily job after {{ setting('outreach_followup_days') }} days with no reply</h3>
-<label>Body</label><textarea name="followup_body" rows="8">{{ o.followup_body }}</textarea>
+<label for="f-followup_body">Body</label><textarea id="f-followup_body" name="followup_body" rows="8">{{ o.followup_body }}</textarea>
 <p><button class="btn" name="action" value="send_followup">Approve and send the follow-up to {{ o.email }}</button> <span class="small muted">Nothing goes out until you click this (rule 4.7).</span></p></form>{% endif %}
 
 <form method="post" class="card" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Mark the reply:</b>

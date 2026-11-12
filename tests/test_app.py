@@ -1953,3 +1953,106 @@ class ChangesOf7November(Base):
         r = self.c.get("/about")
         self.assertEqual(r.status_code, 200)
         self.assertIn(b'<div class="card"><h3>Test</h3><p>Now is the time for all good men to come to the aid of their country.</p></div>', r.data)
+
+
+class ChangesOf12November(Base):
+    """One test per change of 12 November 2026 (HANDOFF.md, change 38)."""
+    def setUp(self):
+        super().setUp()
+        with self.app.app_context():
+            demo_data.load()
+
+    def _crawl(self, start_paths, limit=70):
+        """Fetch pages reachable by plain links, as the signed-in user, and return {path: html}."""
+        import re
+        seen, queue, pages = set(), list(start_paths), {}
+        skip = re.compile(r"logout|unsubscribe|resubscribe|download|export|\.csv|/static|/join/|mailto:")
+        while queue and len(pages) < limit:
+            p = queue.pop(0)
+            if p in seen:
+                continue
+            seen.add(p)
+            r = self.c.get(p)
+            if r.status_code != 200 or "text/html" not in (r.content_type or ""):
+                continue
+            html = r.get_data(as_text=True)
+            pages[p] = html
+            for href in re.findall(r'href="(/[^"#?]*)"', html):
+                if not skip.search(href) and href not in seen:
+                    queue.append(href)
+        return pages
+
+    def _problems(self, path, html):
+        from html.parser import HTMLParser
+        out, ids, label_for, controls = [], {}, set(), []
+        state = {"label_depth": 0, "button": None}
+        class P(HTMLParser):
+            def handle_starttag(s, tag, attrs):
+                a = dict(attrs)
+                if a.get("id"):
+                    ids[a["id"]] = ids.get(a["id"], 0) + 1
+                if tag == "label":
+                    state["label_depth"] += 1
+                    if a.get("for"):
+                        label_for.add(a["for"])
+                if tag in ("input", "select", "textarea"):
+                    kind = (a.get("type") or "text").lower()
+                    if tag == "input" and kind in ("hidden", "submit", "button", "image", "reset"):
+                        if kind in ("submit", "button") and not (a.get("value") or a.get("aria-label")):
+                            out.append("button input with no text")
+                        return
+                    controls.append((tag, a, state["label_depth"] > 0))
+                if tag == "button":
+                    state["button"] = {"aria": a.get("aria-label"), "text": ""}
+            def handle_endtag(s, tag):
+                if tag == "label" and state["label_depth"]:
+                    state["label_depth"] -= 1
+                if tag == "button" and state["button"] is not None:
+                    b = state["button"]; state["button"] = None
+                    if not (b["aria"] or b["text"].strip()):
+                        out.append("button with no name")
+            def handle_data(s, data):
+                if state["button"] is not None:
+                    state["button"]["text"] += data
+        P().feed(html)
+        for tag, a, wrapped in controls:
+            if wrapped or a.get("aria-label") or a.get("aria-labelledby"):
+                continue
+            if a.get("id") and a["id"] in label_for:
+                continue
+            out.append("%s name=%r has no label" % (tag, a.get("name")))
+        out += ["duplicate id %r" % i for i, n in ids.items() if n > 1]
+        return ["%s: %s" % (path, o) for o in out]
+
+    def test_38_every_field_and_button_has_a_label_and_no_id_repeats(self):
+        problems, checked = [], 0
+        for who, starts in (("anon", ["/", "/login", "/managers/", "/support", "/calculator", "/learn"]),
+                            ("investor@luminaz.test", ["/", "/me"]),
+                            ("manager@luminaz.test", ["/managers/"]),
+                            ("admin@luminaz.test", ["/admin/"])):
+            self.c = self.app.test_client()
+            if who != "anon":
+                self.login(who)
+            for path, html in self._crawl(starts).items():
+                checked += 1
+                problems += ["[%s] %s" % (who.split("@")[0], p) for p in self._problems(path, html)]
+        self.assertGreater(checked, 25)
+        self.assertEqual(problems, [], "\n" + "\n".join(sorted(set(problems))[:40]))
+
+    def test_38_button_text_is_readable_on_the_orange_and_in_text_links_are_underlined(self):
+        import re
+        css = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "luminaz", "static", "style.css"), encoding="utf-8").read()
+        var = dict(re.findall(r"--([a-z0-9-]+):(#[0-9a-fA-F]{6})", css))
+        def lum(h):
+            c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+            c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+        def ratio(a, b):
+            hi, lo = sorted([lum(a), lum(b)], reverse=True)
+            return (hi + 0.05) / (lo + 0.05)
+        m = re.search(r"\.btn\{[^}]*background:var\(--sun\);color:(var\(--[a-z]+\)|#[0-9a-fA-F]{6})", css)
+        self.assertTrue(m, "the main button rule must set its own text colour")
+        text = var[m.group(1)[6:-1]] if m.group(1).startswith("var(") else m.group(1)
+        self.assertGreaterEqual(ratio(text, var["sun"]), 4.5)            # WCAG AA for normal text
+        self.assertGreaterEqual(ratio(text, "#d97a1c"), 4.5)             # the hover colour too
+        self.assertIn("p a:not(.btn),label a,.small a,.muted a{text-decoration:underline}", css)

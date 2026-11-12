@@ -15,5 +15,5 @@
 {% if fund.status == 'live' %}<div class="card"><h3>Request materials</h3>
 {% if req %}<p>You requested materials on {{ req.created_at|date }}. The manager will contact you directly at {{ g.user.email }}.</p>
 {% else %}<p class="small">This is the one moment your name and email are shared with the fund manager. They will send you the offering documents and verify your accreditation before any investment.</p>
-<form class="stack" method="post" action="{{ url_for('investor.request_materials', fund_id=fund.id) }}"><label>A note to the manager (optional)</label><textarea name="message" maxlength="1000" placeholder="For example: what you'd like to see, or a question about the strategy"></textarea><p><button class="btn">Send my request</button></p></form>{% endif %}</div>{% endif %}
+<form class="stack" method="post" action="{{ url_for('investor.request_materials', fund_id=fund.id) }}"><label for="f-message">A note to the manager (optional)</label><textarea id="f-message" name="message" maxlength="1000" placeholder="For example: what you'd like to see, or a question about the strategy"></textarea><p><button class="btn">Send my request</button></p></form>{% endif %}</div>{% endif %}
 {% endblock %}

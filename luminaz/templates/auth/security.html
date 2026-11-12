@@ -5,7 +5,7 @@
 {% endfor %}</pre><p><button class="btn quiet" onclick="window.print()">Print</button></p></div>
 {% elif setup_secret %}<div class="card"><h3>Step 1: add Luminaz to your authenticator app</h3><p>Scan this code, or type the key by hand.</p>
 <div id="qr" style="margin:10px 0"></div><p class="mono">{{ setup_secret }}</p>
-<h3>Step 2: enter the code the app shows</h3><form class="stack" method="post"><input type="hidden" name="action" value="confirm"><label>Six-digit code</label><input name="code" inputmode="numeric" required autofocus><p><button class="btn">Turn on two-step sign-in</button></p></form></div>
+<h3>Step 2: enter the code the app shows</h3><form class="stack" method="post"><input type="hidden" name="action" value="confirm"><label for="f-code">Six-digit code</label><input id="f-code" name="code" inputmode="numeric" required autofocus><p><button class="btn">Turn on two-step sign-in</button></p></form></div>
 <script>
 // Minimal QR: renders the otpauth URI via a tiny QR generator (no external requests).
 (function(){var t=document.getElementById('qr');var u={{ uri|tojson }};

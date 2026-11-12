@@ -5,6 +5,34 @@ first. Rules are in AGENTS.md.
 
 ---
 
+## 12 November 2026 · Claude (builder) · Change 38: label every field and button; readable button text; underlined links in text
+
+### What happened
+
+- Diane asked (12 November) for the site to be usable with a screen reader and for "every button" to be labelled. A scan with axe-core (WCAG 2.1 A and AA) of 17 pages, signed out and signed in as investor, found 10 unlabelled form fields (critical), button text at 2.45:1 contrast (needs 4.5:1), and links told apart from text by colour only. **72 of 72 tests pass** (70 before, two new). Backup before the first edit: `../backups/app_2026-11-12_before_change_38.zip`.
+- The buttons already had names. The unlabelled things were form fields: 140 labels were not connected to their fields (`<label>` with no `for`), so a screen reader announced "edit text" with no name. The sign-in boxes now announce "Email" and "Password".
+
+### Change 38
+
+- 23 templates: every label is connected to its field (`for` / `id`, id = `f-` plus the field name). Eight fields with no visible label got an `aria-label` (the two criteria fields, the invoice payment method, the request status, and others); visible wording did not change.
+- `static/style.css`: main orange button text is now the dark ink colour (7:1) instead of white (2.45:1); the orange itself is unchanged. Blue and red buttons stay white. Links inside sentences are underlined.
+- Tests: `test_38_every_field_and_button_has_a_label_and_no_id_repeats` crawls the signed-out, investor, manager and admin pages and fails on any unlabelled field, nameless button or repeated id. `test_38_button_text_is_readable_...` checks the contrast and the underline rule.
+
+### Checked / not checked
+
+- Checked: axe-core on 17 pages, zero violations after the change; Chrome's accessibility tree for `/login`.
+- **Not checked: a real screen reader (NVDA, JAWS, VoiceOver) used by a person.** Automated tools catch only part of the problems. Pages not reached by the crawl (for example some admin screens needing data) were covered by the new test only where the demo data reaches them.
+- Not done: a "skip to content" link, a keyboard-focus check, an accessibility statement page (wording is Diane's, then the attorney's), and the request-status dropdown on the manager's fund page, which submits as soon as it changes (WCAG 3.2.2).
+
+### Open decisions
+
+| # | Question | What the code does meanwhile |
+|---|---|---|
+| 54 | Age line at sign-up: 18 (builder's recommendation) or 13, as an unchecked "I am 18 or older" box with a time stamp. Wording goes to the attorney. | Nothing built. |
+| 55 | Accessibility statement page: wording and a contact route. | Nothing built. |
+
+---
+
 ## 7 November 2026 · Claude (builder) · Change 37: a "Test" panel on the About page (to prove the automatic deploy)
 
 - Cliff asked for it, with the exact copy, to watch a change travel from GitHub to the live site.

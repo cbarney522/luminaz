@@ -2,17 +2,17 @@
 <h1>Am I an accredited investor?</h1><p class="sub">The SEC's tests, in two minutes. The figures you enter are used for the result and then discarded; only the result and your email are kept.</p>
 <form class="stack card" method="post">
 <h3>Income test</h3>
-<label>Filing alone or with a spouse or partner?</label><select name="joint"><option value="no">Alone ($200,000 threshold)</option><option value="yes">Jointly ($300,000 threshold)</option></select>
-<div class="row"><div><label>Income last year</label><input name="income_last" inputmode="numeric" placeholder="$"></div><div><label>Income the year before</label><input name="income_prior" inputmode="numeric" placeholder="$"></div></div>
-<label>Do you reasonably expect the same or more this year?</label><select name="income_expect"><option value="yes">Yes</option><option value="no">No</option></select>
+<label for="f-joint">Filing alone or with a spouse or partner?</label><select id="f-joint" name="joint"><option value="no">Alone ($200,000 threshold)</option><option value="yes">Jointly ($300,000 threshold)</option></select>
+<div class="row"><div><label for="f-income_last">Income last year</label><input id="f-income_last" name="income_last" inputmode="numeric" placeholder="$"></div><div><label for="f-income_prior">Income the year before</label><input id="f-income_prior" name="income_prior" inputmode="numeric" placeholder="$"></div></div>
+<label for="f-income_expect">Do you reasonably expect the same or more this year?</label><select id="f-income_expect" name="income_expect"><option value="yes">Yes</option><option value="no">No</option></select>
 <h3>Net worth test</h3>
-<div class="row"><div><label>Total assets (everything you own, including your home)</label><input name="assets" inputmode="numeric" placeholder="$"></div><div><label>Value of your primary home</label><input name="home_value" inputmode="numeric" placeholder="$"></div></div>
-<div class="row"><div><label>Total debts (including the mortgage)</label><input name="liabilities" inputmode="numeric" placeholder="$"></div><div><label>Mortgage balance on your primary home</label><input name="mortgage" inputmode="numeric" placeholder="$"></div></div>
+<div class="row"><div><label for="f-assets">Total assets (everything you own, including your home)</label><input id="f-assets" name="assets" inputmode="numeric" placeholder="$"></div><div><label for="f-home_value">Value of your primary home</label><input id="f-home_value" name="home_value" inputmode="numeric" placeholder="$"></div></div>
+<div class="row"><div><label for="f-liabilities">Total debts (including the mortgage)</label><input id="f-liabilities" name="liabilities" inputmode="numeric" placeholder="$"></div><div><label for="f-mortgage">Mortgage balance on your primary home</label><input id="f-mortgage" name="mortgage" inputmode="numeric" placeholder="$"></div></div>
 <div class="hint">Your home and its mortgage are excluded from the test. If the mortgage is bigger than the home is worth, the difference counts against you.</div>
 <h3>License test</h3>
-<label>Do you hold a Series 7, 65, or 82 license in good standing?</label><select name="license"><option value="no">No</option><option value="yes">Yes</option></select>
+<label for="f-license">Do you hold a Series 7, 65, or 82 license in good standing?</label><select id="f-license" name="license"><option value="no">No</option><option value="yes">Yes</option></select>
 <h3>Your result</h3>
-<label>Email to send your result to</label><input name="email" type="email" required>
+<label for="f-email">Email to send your result to</label><input id="f-email" name="email" type="email" required>
 <label style="font-weight:400"><input type="checkbox" name="consent" style="width:auto" required> I agree to receive my result and ongoing educational emails about accredited investing from Luminaz (about one a week). I can unsubscribe at any time using the link in every email. <a href="{{ url_for('investor.legal', doc='privacy') }}">Privacy policy</a>.</label>
 <p><button class="btn">Show my result</button></p>
 <p class="small muted">This is an educational tool, not legal, tax, or investment advice. A fund manager will verify your status before any investment.</p>
